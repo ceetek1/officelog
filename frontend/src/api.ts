@@ -61,17 +61,41 @@ export const passkeyLogin = (challenge_id: number, credential: Json) =>
 
 // ---- Phone: today and clocking ----
 
-export interface Today {
+export type DayStatus = "on_time" | "late" | "excused" | "absent" | "not_in_yet" | "day_off";
+export interface Day {
+  date: string;
+  label: string;
+  working_day: boolean;
+  status: DayStatus;
+  clock_in: { time: string; at: string; source: string; entered_by: string | null } | null;
+  clock_out: { time: string; at: string; source: string; entered_by: string | null; approved_by: string | null } | null;
+  late_minutes: number | null;
+  late_excused: boolean;
+  absent: boolean;
+  absent_excused: boolean;
+  missing_clock_out: boolean;
+  left_early_minutes: number | null;
+  left_early_excused: boolean;
+  worked_minutes: number | null;
+  not_in_yet: boolean;
+  reasons: Record<string, "waiting" | "approved" | "rejected">;
+}
+export interface Today extends Day {
   name: string;
   work_date: string;
-  date: string;
-  working_day: boolean;
   holiday: boolean;
   schedule: { start: string; grace_minutes: number; on_time_until: string; close: string } | null;
-  clock_in: { time: string; at: string; source: string; late_minutes: number | null } | null;
-  clock_out: { time: string; at: string; source: string; left_early_minutes: number | null } | null;
-  worked_minutes: number | null;
   server_time: string;
+}
+export interface History {
+  month: string; label: string; prev: string | null; next: string | null;
+  summary: { days_in: number; late: number; left_early: number; absent: number; worked_minutes: number };
+  days: Day[];
+}
+export interface TeamToday {
+  work_date: string; date: string; working_day: boolean;
+  counts: Record<DayStatus, number>;
+  people: (Day & { user_id: number; name: string; role: Role })[];
 }
 export type Kind = "in" | "out";
 export type Method = "qr" | "typed";
@@ -81,6 +105,9 @@ export interface Receipt {
 }
 
 export const getToday = () => api<Today>("GET", "/api/me/today");
+export const getHistory = (month?: string) =>
+  api<History>("GET", "/api/me/history" + (month ? `?month=${encodeURIComponent(month)}` : ""));
+export const getTeamToday = () => api<TeamToday>("GET", "/api/team/today");
 export const clockStart = (kind: Kind, method: Method, code: string, confirm: boolean) =>
   api<Challenge>("POST", "/api/clock/start", { kind, method, code, confirm });
 export const clockFinish = (challenge_id: number, credential: Json, client_ms_to_scan: number) =>

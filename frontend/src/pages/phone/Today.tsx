@@ -1,20 +1,23 @@
 // Today: one big button (Clock In / Clock Out) or "Done for today" (spec §4.2).
 // Prototype B boards "4 · Today: Clock in", "7 · Today: Clock out", "8 · Done for today".
 import { useCallback, useEffect, useState } from "react";
-import { ApiError, getToday, logout, type Kind, type Today as TodayData } from "../../api";
+import { Link } from "react-router-dom";
+import { ApiError, getToday, logout, type Kind, type Role, type Today as TodayData } from "../../api";
 import { initials, worked } from "../../format";
 import { useSession } from "../../session";
 import { Alert } from "../../ui/Alert";
 import { Button } from "../../ui/Button";
 import { Group, Row } from "../../ui/Grouped";
-import { ScanIcon } from "../../ui/icons";
+import { AllPills, timeNotes } from "../../ui/DayPills";
+import { ChevronRight, ScanIcon } from "../../ui/icons";
 import { Pill } from "../../ui/Pill";
 import { ActionSheet } from "../../ui/Sheets";
+import { TabBar } from "../../ui/TabBar";
 import { ClockFlow } from "./ClockFlow";
 
 const CONFIRM_WITHIN_MS = 5 * 60 * 1000;
 
-export function Today() {
+export function Today({ role }: { role: Role }) {
   const { refresh } = useSession();
   const [today, setToday] = useState<TodayData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -66,8 +69,9 @@ export function Today() {
     setFlow({ kind, confirm: false, t0 });
   }
 
-  const late = today.clock_in?.late_minutes ?? null;
-  const early = today.clock_out?.left_early_minutes ?? null;
+  const notes = timeNotes(today);
+  const footer = [!today.working_day ? "Not a working day. Clock-ins are still recorded." : "", ...notes]
+    .filter(Boolean).join(" ");
 
   return (
     <div className="phone">
@@ -85,14 +89,13 @@ export function Today() {
           {!today.clock_in && <Pill tone="wait">Not clocked in</Pill>}
           {today.clock_in && !today.clock_out && <Pill tone="info">Clocked in</Pill>}
           {today.clock_out && <Pill tone="ok">Done for today</Pill>}
-          {late !== null && <Pill tone="warn">Late · {late} min</Pill>}
-          {early !== null && <Pill tone="warn">Left early · {early} min</Pill>}
+          <AllPills d={today} />
           {!today.working_day && <Pill tone="wait">{today.holiday ? "Holiday" : "Day off"}</Pill>}
           {!today.clock_in && today.schedule && (
             <span className="status-note">On time until {today.schedule.on_time_until}</span>
           )}
         </div>
-        <Group footer={!today.working_day ? "Not a working day. Clock-ins are still recorded." : undefined}>
+        <Group footer={footer || undefined}>
           {!today.clock_in && today.schedule && <Row label="Work starts" value={today.schedule.start} mono />}
           <Row label="Clock in" mono value={today.clock_in
             ? <span className="row-strong">{today.clock_in.time}</span> : "--:--"} />
@@ -101,6 +104,14 @@ export function Today() {
           {today.clock_in && !today.clock_out && today.schedule && <Row label="Work ends" value={today.schedule.close} mono />}
           {today.clock_out && <Row label="Worked" value={worked(today.worked_minutes)} />}
         </Group>
+        {role === "manager" && (
+          <div className="group">
+            <Link to="/history" className="row">
+              <span className="row-body"><span>My History</span>
+                <span style={{ color: "var(--text-4)", display: "flex" }}><ChevronRight /></span></span>
+            </Link>
+          </div>
+        )}
         {error && <p className="error-text" role="alert">{error}</p>}
       </main>
       {kind && (
@@ -110,6 +121,7 @@ export function Today() {
           </button>
         </div>
       )}
+      <TabBar role={role} />
       {askConfirm && today.clock_in && (
         <Alert
           title="Clock Out Now?"

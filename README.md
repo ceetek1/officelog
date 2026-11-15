@@ -8,9 +8,9 @@ sees how much the system is actually used.
 - Where the build differs from the spec, and why: [`docs/decisions.md`](docs/decisions.md)
 - Deploying: [`docs/deploy-railway.md`](docs/deploy-railway.md)
 
-**Status:** Steps 1–2 of 6. Done: database, admin commands, MD sign-in, the entrance TV, invites
-with Face ID, clocking in and out with receipts. Next: rules, Today/History screens and the
-manager's Team today (Step 3).
+**Status:** Steps 1–3 of 6. Done: database, admin commands, MD sign-in, the entrance TV, invites
+with Face ID, clocking in and out with receipts, the attendance rules, Today, History and the
+manager's Team today. Next: reasons, approvals and the activity log (Step 4).
 
 Pages: `/` phone app · `/invite/<token>` new phone · `/tv` entrance TV · `/md/login` MD.
 

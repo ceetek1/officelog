@@ -137,3 +137,9 @@ These are small choices the spec leaves open. They are listed so a reviewer sees
 - **B8. When the TV loses the server,** it hides the QR and typed code after 10 seconds (they'd be
   stale) and shows "Connection lost · scans paused". It recovers by itself, reloads itself if its
   loop stops, when a new version is deployed, and once a day around 04:00.
+- **B9. Day status words.** A day shows one main word in lists, in this order of importance:
+  Absent (or Excused), No clock-out, Late (or Excused), Left early (or Excused), On time, Not in
+  yet, Day off. "No clock-out" appears from close + 60 minutes. A day before today is judged as
+  finished. Left early is rounded up to whole minutes (16:59:30 is 1 min early).
+- **B10. The manager's own history** is a "My History" row on their Me tab, because their tab bar
+  (Me, Team, Approvals, People) has no History tab in the design.
