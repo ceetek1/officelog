@@ -48,11 +48,11 @@ export function MdPersonHistory() {
   );
 
   return (
-    <MdShell title={p?.name || "Person"} subtitle={sub || undefined} back={{ to: "/md", label: "Today" }} actions={switcher}>
+    <MdShell title={p?.name || "Person"} subtitle={sub || undefined} back={{ to: "/md", label: "Today" }} actions={switcher} phoneActions={switcher}>
       {error && <p className="error-text" role="alert">{error}</p>}
       {data && (
         <>
-          <div className="stats stats-4">
+          <div className={`stats stats-4${phone ? " stats-compact" : ""}`} style={phone ? { gridTemplateColumns: "repeat(4, minmax(0, 1fr))" } : undefined}>
             {[{ label: "Days in", value: data.summary.days_in },
               { label: "Late", value: data.summary.late, color: data.summary.late ? "var(--warn-fg)" : undefined },
               { label: "Excused", value: data.summary.excused, color: data.summary.excused ? "var(--excused-fg)" : undefined },

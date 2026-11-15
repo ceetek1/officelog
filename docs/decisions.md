@@ -215,5 +215,15 @@ These are small choices the spec leaves open. They are listed so a reviewer sees
   and sessions stop working; asks first if a phone is set up). The server still allows exactly one
   active manager (also enforced by the database). Both are in the activity log with the MD as the
   actor ("Person added", "Phone reset", "Invite created"). So `railway ssh` and
-  `python -m app.admin create-manager` are no longer needed, though they still work. The MD's phone
-  bottom bar now has People too.
+  `python -m app.admin create-manager` are no longer needed, though they still work. On a phone,
+  People opens from Today ("Manager and everyone"), see B25.
+- **B25. The MD's pages are app-style on a phone** (owner's answers, 2026-11-15: the MD mostly uses
+  a phone; the pages felt like a website, too long, and the spacing was off). Below 760 px wide they
+  follow Prototype B's "MD · phone" boards, like the manager's app: a large title, an account button
+  (Privacy Notice, Sign Out) instead of the website bar, and a bottom tab bar with icons: Today,
+  Approvals (with the waiting count), Activity, Usage. Today on a phone is a short summary: three
+  counts, "N reasons waiting" (opens Approvals), the people with their times, "Manager and everyone"
+  (People, where Add Manager is) and the Entrance TV's status. The day picker and Time from Paper are
+  buttons at the top. A person and People have a back button. On a laptop nothing changed.
+  The MD can add the site to the home screen (the same app icon as the workers'); when signed out,
+  it opens on the MD's email sign-in on a phone that the MD used before.

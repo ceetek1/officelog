@@ -16,6 +16,15 @@ import { ReasonCard } from "../manager/Approvals";
 import { PaperSheetIcon, PaperTimeSheet } from "../manager/PaperTime";
 import { MdShell } from "./Shell";
 
+const Svg = ({ children, size = 20 }: { children: React.ReactNode; size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+    strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{children}</svg>
+);
+const CheckBoxIcon = () => <Svg><rect x="3.5" y="3.5" width="17" height="17" rx="3" /><path d="M8 12l3 3 5-6" /></Svg>;
+const PersonIcon = () => <Svg><circle cx="12" cy="8" r="3.5" /><path d="M5 20c1-3.6 3.8-5.5 7-5.5s6 1.9 7 5.5" /></Svg>;
+const TvIcon = () => <Svg><rect x="2.5" y="4" width="19" height="13" rx="2" /><path d="M8 21h8M12 17v4" /></Svg>;
+const CalendarIcon = () => <Svg size={18}><rect x="3.5" y="5" width="17" height="15" rx="2" /><path d="M3.5 10h17M8 3v4M16 3v4" /></Svg>;
+
 type Person = MdToday["people"][number];
 
 function Status({ p }: { p: Person }) {
@@ -55,6 +64,7 @@ export function MdHome() {
   if (!me?.user || me.user.role !== "md") return <Navigate to="/md/login" replace />;
 
   const today = new Date().toLocaleDateString("en-CA", { timeZone: "Africa/Lagos" });
+  const pickDay = (v: string) => setParams(v && v !== today ? { date: v } : {});
   const c = data?.counts;
   const fourth = data && !data.is_today
     ? { label: "Absent", value: c!.absent, color: c!.absent ? "var(--bad-fg)" : undefined }
@@ -63,15 +73,20 @@ export function MdHome() {
 
   const team = data && (
     <section>
-      <h2 className="group-title">Team</h2>
+      <h2 className="group-title">{phone ? "People" : "Team"}</h2>
       {phone ? (
         <div className="group">
           {data.people.map((p) => (
             <Link key={p.user_id} to={person(p)} className="row row-link" style={{ minHeight: 56 }}>
               <span className="person-initials" aria-hidden="true">{initials(p.name)}</span>
               <span className="row-body">
-                <span style={{ fontWeight: 600 }}>{p.name}</span>
-                <span className="row-right">{times(p)}<Status p={p} /><span className="row-chevron"><ChevronRight /></span></span>
+                <span className="two-line">
+                  <span style={{ fontWeight: 600 }}>{p.name}</span>
+                  {p.clock_in
+                    ? <span className="sub-mono">{p.clock_in.time} – {p.clock_out?.time || "--:--"}</span>
+                    : <span className="sub-note">Not clocked in</span>}
+                </span>
+                <span className="row-right"><MainPill d={p} /><span className="row-chevron"><ChevronRight /></span></span>
               </span>
             </Link>
           ))}
@@ -115,14 +130,78 @@ export function MdHome() {
     </div>
   );
 
+  // Phone (Prototype B "MD · Today" phone board): a short summary that links to the other pages.
+  const phoneBody = data && (
+    <>
+      {!data.working_day && <p className="status-note">Not a working day. Scans are still recorded.</p>}
+      <div className="stats">
+        {[{ label: "On time", value: c!.on_time, color: "var(--ok-fg)" },
+          { label: "Late", value: c!.late, color: "var(--warn-fg)" },
+          data.is_today ? { label: "Not in yet", value: c!.not_in_yet }
+            : { label: "Absent", value: c!.absent, color: c!.absent ? "var(--bad-fg)" : undefined }].map((s) => (
+          <div key={s.label} className="stat">
+            <span className="stat-label">{s.label}</span>
+            <span className="stat-value" style={s.color ? { color: s.color } : undefined}>{s.value}</span>
+          </div>
+        ))}
+      </div>
+      {waiting.length > 0 && (
+        <div className="group">
+          <Link to="/md/approvals" className="row row-link">
+            <span className="tile-icon tile-solid"><CheckBoxIcon /></span>
+            <span className="row-body">
+              <span className="two-line">
+                <span style={{ fontWeight: 600 }}>{waiting.length} {waiting.length === 1 ? "reason" : "reasons"} waiting</span>
+                <span className="status-note">From {[...new Set(waiting.map((r) => r.name))].slice(0, 2).join(", ")}
+                  {new Set(waiting.map((r) => r.name)).size > 2 ? " and others" : ""}</span>
+              </span>
+              <span className="row-chevron"><ChevronRight /></span>
+            </span>
+          </Link>
+        </div>
+      )}
+      {team}
+      <div className="group">
+        <Link to="/md/people" className="row row-link">
+          <span className="tile-icon"><PersonIcon /></span>
+          <span className="row-body">
+            <span className="two-line"><span>Manager and everyone</span>
+              <span className="sub-note">Add the manager, see past months</span></span>
+            <span className="row-chevron"><ChevronRight /></span>
+          </span>
+        </Link>
+        <div className="row">
+          <span className="tile-icon"><TvIcon /></span>
+          <span className="row-body">
+            <span className="two-line"><span>Entrance TV</span>
+              {data.tv && <span className="sub-note">Last seen {data.tv.last_seen || "never"} · {data.tv.scans_today} scans today</span>}</span>
+            {data.tv ? <Pill tone={data.tv.status === "online" ? "ok" : "bad"}>{data.tv.label}</Pill> : <Pill tone="wait">Not set up</Pill>}
+          </span>
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <MdShell title={data && !data.is_today ? data.short_date : "Today"}
-      eyebrow={data ? `${data.date} · ${data.active_people} active people` : undefined}
+      eyebrow={data ? (phone ? `${data.active_people} active people` : `${data.date} · ${data.active_people} active people`) : undefined}
+      phoneActions={
+        <>
+          <label className="date-chip">
+            <CalendarIcon />{data ? (data.is_today ? "Today" : data.short_date) : "Today"}
+            <input type="date" className="date-chip-input" max={today} value={data?.work_date || date || today}
+              aria-label="Pick a day" onChange={(e) => pickDay(e.target.value)} />
+          </label>
+          <button type="button" className="header-icon" aria-label="Add time from paper sheet" onClick={() => setPaper(true)}>
+            <PaperSheetIcon />
+          </button>
+        </>
+      }
       actions={
         <div className="range-row">
           <label><span className="visually-hidden">Day</span>
             <input type="date" className="md-chip-input" max={today} value={data?.work_date || date || today}
-              onChange={(e) => setParams(e.target.value && e.target.value !== today ? { date: e.target.value } : {})} />
+              onChange={(e) => pickDay(e.target.value)} />
           </label>
           <Button variant="secondary" style={{ width: "auto" }} onClick={() => setPaper(true)}>
             <PaperSheetIcon /><span>Time from Paper</span>
@@ -131,7 +210,8 @@ export function MdHome() {
       }>
       {error && <div className="stack-16"><p className="error-text" role="alert">{error}</p>
         <Button variant="secondary" style={{ width: "auto", alignSelf: "center" }} onClick={() => void load()}>Try Again</Button></div>}
-      {data && (
+      {data && phone && phoneBody}
+      {data && !phone && (
         <>
           {!data.working_day && <p className="status-note">Not a working day. Scans are still recorded.</p>}
           <div className="stats stats-4">
@@ -145,7 +225,7 @@ export function MdHome() {
               </div>
             ))}
           </div>
-          {phone ? <>{side}{team}</> : <div className="md-split">{team}{side}</div>}
+          <div className="md-split">{team}{side}</div>
         </>
       )}
       {paper && <PaperTimeSheet onClose={() => setPaper(false)}

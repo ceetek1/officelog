@@ -1,6 +1,7 @@
 import { lazy, Suspense, type JSX } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { MdHome } from "./pages/md/Home";
+import { MD_DEVICE_KEY } from "./pages/md/Shell";
 import { MdSignIn } from "./pages/md/SignIn";
 import { PhoneSignIn } from "./pages/phone/SignIn";
 import { Welcome } from "./pages/phone/Welcome";
@@ -33,6 +34,10 @@ function Home() {
   const role = me?.user?.role;
   if (role === "md") return <Navigate to="/md" replace />;
   if (role === "worker" || role === "manager") return <Today role={role} />;
+  // The MD's home-screen app opens "/": if this phone was last used by the MD, go to email sign-in.
+  let mdDevice = false;
+  try { mdDevice = localStorage.getItem(MD_DEVICE_KEY) === "1"; } catch { /* private mode */ }
+  if (mdDevice) return <Navigate to="/md/login" replace />;
   return <PhoneSignIn />;
 }
 
