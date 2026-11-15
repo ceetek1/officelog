@@ -1,0 +1,41 @@
+{
+  "master": "test-master-secret-0123456789abcdef",
+  "vectors": [
+    {
+      "work_date": "2026-11-16",
+      "unix": 1794816000,
+      "day_secret_hex": "0dff808a6b001da4d03577ba2b3044311bda205531639b0dfdd76e4155986134",
+      "qr_window": 358963200,
+      "qr": "ATT1.358963200.620063",
+      "typed_window": 59827200,
+      "typed": "553668"
+    },
+    {
+      "work_date": "2026-11-16",
+      "unix": 1794816004.9,
+      "day_secret_hex": "0dff808a6b001da4d03577ba2b3044311bda205531639b0dfdd76e4155986134",
+      "qr_window": 358963200,
+      "qr": "ATT1.358963200.620063",
+      "typed_window": 59827200,
+      "typed": "553668"
+    },
+    {
+      "work_date": "2026-11-21",
+      "unix": 1795248123,
+      "day_secret_hex": "54992b5537ceb59adc3a9e36f0a198c4757ee18a1dd39a0fe09fa895003efdb7",
+      "qr_window": 359049624,
+      "qr": "ATT1.359049624.652556",
+      "typed_window": 59841604,
+      "typed": "975047"
+    },
+    {
+      "work_date": "2027-01-01",
+      "unix": 1798758000,
+      "day_secret_hex": "c6a5676f025ff464c508a46c8a8d3fa9392e8c7a07447d6fff0b9ec02896ebd8",
+      "qr_window": 359751600,
+      "qr": "ATT1.359751600.544936",
+      "typed_window": 59958600,
+      "typed": "038021"
+    }
+  ]
+}
