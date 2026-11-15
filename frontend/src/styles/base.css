@@ -1,0 +1,130 @@
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.35;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--primary); }
+a:hover { color: var(--primary-hover); }
+h1, h2, h3, p { margin: 0; }
+
+.mono { font-family: var(--mono); }
+
+:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; min-height: var(--button-h); padding: 0 20px;
+  border-radius: var(--radius-button); border: 1px solid transparent;
+  font-size: 17px; font-weight: 600; text-decoration: none; cursor: pointer;
+}
+.btn:disabled { opacity: 0.55; cursor: default; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-hover); color: #fff; }
+.btn-secondary { background: var(--secondary); border-color: var(--secondary-border); color: var(--text); }
+.btn-secondary:hover:not(:disabled) { background: var(--secondary-hover); }
+.btn-plain {
+  width: auto; min-height: var(--touch); padding: 0 8px; background: none;
+  color: var(--primary); font-weight: 400;
+}
+.btn-plain:hover { color: var(--primary-hover); }
+
+/* ---------- App icon ---------- */
+.app-icon {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--primary); color: #fff;
+}
+
+/* ---------- Inset grouped lists ---------- */
+.group-title { margin: 0 0 6px 16px; font-size: 15px; font-weight: 600; color: var(--text-2); }
+.group-footer { margin: 6px 16px 0; font-size: 15px; line-height: 1.35; color: var(--text-3); }
+.group {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-card); overflow: hidden;
+}
+.row { display: flex; align-items: stretch; padding-left: 16px; min-height: var(--row-h); color: var(--text); text-decoration: none; }
+.row-body {
+  flex-grow: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 8px 16px 8px 0;
+}
+.row + .row .row-body { border-top: 1px solid var(--divider); }
+.row-value { color: var(--text-2); text-align: right; }
+.row-label { flex-shrink: 0; width: 84px; }
+.row-input {
+  flex-grow: 1; min-width: 0; border: none; background: transparent; padding: 0;
+  font-size: 17px; color: var(--text); min-height: var(--touch);
+}
+.row-input:focus { outline: none; }
+.row:focus-within { background: #fcfcfc; }
+
+/* ---------- Text ---------- */
+.large-title { font-size: 34px; line-height: 1.2; font-weight: 700; }
+.subtitle { font-size: 17px; color: var(--text-2); }
+.error-text { color: var(--bad-fg); font-size: 15px; text-align: center; }
+
+/* ---------- Status pill ---------- */
+.pill {
+  display: inline-flex; align-items: center; flex-shrink: 0; padding: 4px 12px;
+  border-radius: 999px; font-size: 14px; font-weight: 700; white-space: nowrap;
+}
+.pill-ok { color: var(--ok-fg); background: var(--ok-bg); }
+.pill-warn { color: var(--warn-fg); background: var(--warn-bg); }
+.pill-bad { color: var(--bad-fg); background: var(--bad-bg); }
+.pill-excused { color: var(--excused-fg); background: var(--excused-bg); }
+.pill-wait { color: var(--wait-fg); background: var(--wait-bg); }
+
+/* ---------- System-style alert ---------- */
+.alert-backdrop {
+  position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 50;
+  background: rgba(0, 0, 0, 0.28); display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.alert {
+  width: 290px; max-width: 100%; border-radius: 16px; background: var(--card);
+  border: 1px solid var(--border); overflow: hidden; text-align: center;
+}
+.alert-body { padding: 20px 18px 16px; display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.alert-title { font-size: 17px; font-weight: 700; }
+.alert-message { font-size: 15px; line-height: 1.35; color: #404040; }
+.alert-actions { display: flex; border-top: 1px solid var(--border); }
+.alert-action {
+  flex: 1; min-height: 48px; border: none; background: none; cursor: pointer;
+  font-size: 17px; color: var(--primary);
+}
+.alert-action + .alert-action { border-left: 1px solid var(--border); }
+.alert-action-bold { font-weight: 600; }
+
+/* ---------- Page shells ---------- */
+.centered-page {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 48px var(--margin);
+  padding-top: max(48px, env(safe-area-inset-top));
+  padding-bottom: max(48px, env(safe-area-inset-bottom));
+}
+.stack { display: flex; flex-direction: column; gap: 24px; }
+.stack-16 { display: flex; flex-direction: column; gap: var(--gap); }
+.narrow { width: 100%; max-width: 420px; }
+
+/* On phones the sign-in sits near the top, as in the phone design, not in the middle. */
+@media (max-width: 600px) {
+  .centered-page { align-items: flex-start; }
+}
