@@ -8,13 +8,24 @@ sees how much the system is actually used.
 - Where the build differs from the spec, and why: [`docs/decisions.md`](docs/decisions.md)
 - Deploying: [`docs/deploy-railway.md`](docs/deploy-railway.md)
 
-**Status:** Steps 1–4 of 6. Done: database, admin commands, MD sign-in, the entrance TV, invites
-with Face ID, clocking in and out with receipts, the attendance rules, Today, History, the
-manager's Team today, reasons, approvals, the MD's override and the activity log. Next: People,
-phone reset, TV setup and time from paper (Step 5).
+**Status:** all 6 build steps of the MVP are done, waiting for the owner's checks on real phones.
+Built: database, admin commands, MD sign-in, the entrance TV, invites with Face ID, clocking in and
+out with receipts, the attendance rules, Today, History, the manager's Team today, reasons,
+approvals, the MD's override, the activity log, People (add a worker, reset a lost phone,
+deactivate), TV setup and removal, time from the paper sheet, the MD's Today board, history per
+person, the Usage numbers (page and command) and the privacy notice.
 
-Pages: `/` phone app · `/invite/<token>` new phone · `/tv` entrance TV · `/md/login` MD
-(`/md`, `/md/approvals`, `/md/activity`).
+## Pages
+
+| Address | Who | What |
+|---|---|---|
+| `/` | workers, manager | Today (the big Clock In / Clock Out button); workers also get History and Reasons |
+| `/team`, `/approvals`, `/people`, `/people/tv` | manager | Team today (+ time from paper), approvals, People, Entrance TV |
+| `/invite/<token>` | a new phone | privacy notice, then Face ID setup |
+| `/tv` | the entrance TV | the rotating code; when not set up, asks for the setup code |
+| `/md/login` | MD | email + password sign-in |
+| `/md`, `/md/people`, `/md/people/<id>`, `/md/approvals`, `/md/activity`, `/md/usage` | MD | Today board (any day), people and their history, approvals and override, activity log, usage numbers |
+| `/privacy` | anyone | the privacy notice (Nigeria Data Protection Act 2023) |
 
 Phones need **HTTPS** for the camera and Face ID, so real-phone testing happens on the Railway
 site (or another HTTPS address), not on `http://localhost` from another device.
@@ -94,9 +105,38 @@ uv run python -m app.admin --help
 | `create-md --name --email` | Creates the MD (asks for a password). |
 | `reset-md-password --email` | Sets a new password for the MD. |
 | `create-manager --name` | Creates the manager and prints their one-time invite link. |
-| `create-worker --name` | Creates a worker and prints their one-time invite link (until Step 5's People screen). |
-| `create-tv-link` | Prints a one-time link that pairs the entrance TV (until Step 5's TV screen). |
+| `create-worker --name` | Creates a worker and prints their one-time invite link (the manager normally uses People). |
+| `reset-phone --name` | Revokes a person's phone and sessions and prints a new invite link. For the manager's own lost phone. |
+| `create-tv-link` | Prints a one-time TV setup link and code (the manager normally uses People → Entrance TV). |
+| `usage [--from YYYY-MM-DD] [--to YYYY-MM-DD]` | Prints the usage numbers per working day and in total, the same as the MD's Usage page. Default: the last 14 days. |
+
+On Railway, run these in the app service's shell (see [`docs/deploy-railway.md`](docs/deploy-railway.md)).
 
 ## Environment variables
 
-See [`.env.example`](.env.example) for the full list with explanations.
+Set them in `.env` locally, or as service variables on Railway. [`.env.example`](.env.example) has
+the same list with comments.
+
+| Variable | Needed | What it is |
+|---|---|---|
+| `DATABASE_URL` | yes | The database owner's address. Used to update the database and to create the app's restricted user. |
+| `APP_DB_ROLE` | no (`attendance_app`) | The restricted database user the app runs as. It can't change recorded times or the activity log. |
+| `APP_DB_PASSWORD` | yes | That user's password: a long random string. |
+| `MASTER_SECRET` | yes | Makes the TV's rotating codes. At least 32 random characters; keep it secret. |
+| `BASE_URL` | yes | The site's public address, no trailing slash. Face ID passkeys belong to it: set it before anyone registers. |
+| `COOKIE_SECURE` | yes on Railway (`true`) | `false` only for `http://localhost`. |
+| `COMPANY_NAME` | no | Shown on the sign-in screen and in the privacy notice. |
+| `PRIVACY_CONTACT` | recommended | Who to contact about personal data, shown in the privacy notice. |
+| `TIMEZONE` | no (`Africa/Lagos`) | The company's timezone. |
+| `SCHEDULE_JSON` | no | Start, grace and close time per weekday ([decision D5](docs/decisions.md)). Empty = the defaults. |
+| `HOLIDAYS` | no | Comma-separated dates that aren't working days, e.g. `2026-12-25,2026-12-26`. |
+| `EXTRA_ORIGINS` | no | Development only: extra web addresses allowed to use Face ID (the Vite dev server). |
+| `SESSION_DAYS` | no (`30`) | How long a sign-in lasts. |
+
+Changing `SCHEDULE_JSON`, `HOLIDAYS`, `COMPANY_NAME` or `PRIVACY_CONTACT` needs a restart, not a rebuild.
+
+## Deploying and backups
+
+[`docs/deploy-railway.md`](docs/deploy-railway.md) covers creating the Railway project, the
+variables, the HTTPS address, creating the MD and the manager, turning on backups, and a safe way to
+check that a backup can be restored.

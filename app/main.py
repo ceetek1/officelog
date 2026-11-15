@@ -16,13 +16,19 @@ from app.api import me as me_api
 from app.api import team as team_api
 from app.api import reasons as reasons_api
 from app.api import activity_log as activity_api
+from app.api import kiosks as kiosks_api
+from app.api import paper as paper_api
+from app.api import md as md_api
+from app.api import people as people_api
+from app.api import privacy as privacy_api
 from app.config import get_settings
 from app.db import app_engine
 
 
 # Every API router. The permissions test walks these to check each endpoint's roles.
 ROUTERS = (auth_api.router, me_api.router, invites_api.router, kiosk_api.router, clock_api.router,
-           team_api.router, reasons_api.router, activity_api.router)
+           team_api.router, reasons_api.router, activity_api.router, people_api.router, kiosks_api.router,
+           paper_api.router, md_api.router, privacy_api.router)
 
 
 def create_app() -> FastAPI:

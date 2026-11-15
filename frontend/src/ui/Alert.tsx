@@ -1,7 +1,7 @@
 // System-style alert (centered, title + message + actions), as in Prototype B.
 import { useEffect, useId, useRef, type ReactNode } from "react";
 
-export interface AlertAction { label: string; onPress: () => void; bold?: boolean; cancel?: boolean }
+export interface AlertAction { label: string; onPress: () => void; bold?: boolean; cancel?: boolean; destructive?: boolean }
 
 export function Alert({ title, message, actions, icon }: {
   title: string; message?: string; actions: AlertAction[]; icon?: ReactNode;
@@ -28,7 +28,7 @@ export function Alert({ title, message, actions, icon }: {
         <div className="alert-actions">
           {actions.map((a, i) => (
             <button key={a.label} ref={i === 0 ? firstButton : undefined} type="button"
-              className={`alert-action${a.bold ? " alert-action-bold" : ""}`} onClick={a.onPress}>
+              className={`alert-action${a.bold ? " alert-action-bold" : ""}${a.destructive ? " alert-action-destructive" : ""}`} onClick={a.onPress}>
               {a.label}
             </button>
           ))}

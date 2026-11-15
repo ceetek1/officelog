@@ -154,3 +154,80 @@ export interface ActivityEntry { id: number; when: string; at: string; who: stri
 export const getActivity = (filter: string, before?: number) =>
   api<{ entries: ActivityEntry[]; more: boolean }>("GET",
     `/api/activity?filter=${encodeURIComponent(filter)}${before ? `&before=${before}` : ""}`);
+
+// ---- People and the entrance TV (manager; spec §4.4) ----
+
+export type PersonStatus = "active" | "invited" | "expired" | "off";
+export interface Person {
+  id: number; name: string; role: Role; status: PersonStatus; label: string; is_me: boolean;
+  invite_expires: string | null;
+}
+export interface Invite { id: number; name: string; link: string; expires: string }
+export const getPeople = () => api<{ people: Person[]; active_count: number }>("GET", "/api/people");
+export const addPerson = (name: string) => api<Invite>("POST", "/api/people", { name });
+export const resetPhone = (id: number) => api<Invite>("POST", `/api/people/${id}/reset-phone`);
+export const deactivatePerson = (id: number) => api<{ id: number; active: false }>("POST", `/api/people/${id}/deactivate`);
+
+export interface Tv {
+  id: number; status: "online" | "offline" | "waiting"; label: string;
+  set_up: string | null; last_seen: string | null; link_expires: string | null;
+}
+export interface TvLink { id: number; code: string; link: string; tv_page: string; expires: string }
+export const getTvs = () => api<{ tvs: Tv[]; scans_today: number }>("GET", "/api/kiosks");
+export const createTvLink = () => api<TvLink>("POST", "/api/kiosks");
+export const removeTv = (id: number) => api<{ ok: true }>("POST", `/api/kiosks/${id}/revoke`);
+
+// ---- Time from the paper sheet (decision D3; manager and MD) ----
+
+export type PaperReason = "tv_not_working" | "no_smartphone" | "phone_dead_or_forgotten";
+export interface PaperTimeEntry { time: string; source: string; entered_by: string | null }
+export interface PaperDay {
+  date: string; label: string;
+  days: { date: string; label: string }[];
+  reasons: { value: PaperReason; label: string }[];
+  people: { user_id: number; name: string; is_me: boolean; clock_in: PaperTimeEntry | null; clock_out: PaperTimeEntry | null }[];
+}
+export const getPaperDay = (date?: string) =>
+  api<PaperDay>("GET", "/api/paper/day" + (date ? `?date=${encodeURIComponent(date)}` : ""));
+export const addPaperTime = (user_id: number, work_date: string, clock_in: string | null, clock_out: string | null,
+  reason: PaperReason) =>
+  api<{ name: string; added: { kind: Kind; time: string }[]; reason_label: string }>("POST", "/api/paper",
+    { user_id, work_date, clock_in, clock_out, reason });
+
+// ---- MD pages (spec §9, §10) ----
+
+export interface MdToday extends TeamToday {
+  is_today: boolean; short_date: string; active_people: number;
+  tv: { status: "online" | "offline"; label: string; last_seen: string | null; scans_today: number } | null;
+}
+export interface MdPerson { id: number; name: string; role: Role; active: boolean; phone_registered: string | null }
+export interface PersonHistory extends History {
+  summary: History["summary"] & { excused: number };
+  days: (Day & { note: string })[];
+  person: MdPerson;
+}
+export const getMdToday = (date?: string) =>
+  api<MdToday>("GET", "/api/md/today" + (date ? `?date=${encodeURIComponent(date)}` : ""));
+export const getMdPeople = () => api<{ people: MdPerson[] }>("GET", "/api/md/people");
+export const getPersonHistory = (id: number, month?: string) =>
+  api<PersonHistory>("GET", `/api/md/people/${id}/history` + (month ? `?month=${encodeURIComponent(month)}` : ""));
+
+export interface UsageDay {
+  active: number; both: number; both_pct: number | null; first_try: number; tries: number;
+  first_try_pct: number | null; tap_to_receipt_ms: number | null; failed: number;
+  missing_clock_out: number; reasons: number; paper: number;
+}
+export interface Usage {
+  from: string; to: string; label: string; working_days: number;
+  totals: UsageDay & { reasons_approved: number; reasons_rejected: number; reasons_waiting: number };
+  failures: { code: string; label: string; count: number }[];
+  days: (UsageDay & { date: string; label: string })[];
+}
+export const getUsage = (from?: string, to?: string) => {
+  const q = new URLSearchParams();
+  if (from) q.set("from", from);
+  if (to) q.set("to", to);
+  return api<Usage>("GET", `/api/usage${q.toString() ? `?${q}` : ""}`);
+};
+
+export const getPrivacy = () => api<{ company: string; contact: string }>("GET", "/api/privacy");

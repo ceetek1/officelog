@@ -15,6 +15,12 @@ const Reasons = lazy(() => import("./pages/phone/Reasons").then((m) => ({ defaul
 const MdApprovals = lazy(() => import("./pages/md/Approvals").then((m) => ({ default: m.MdApprovals })));
 const MdActivity = lazy(() => import("./pages/md/Activity").then((m) => ({ default: m.MdActivity })));
 const ManagerApprovals = lazy(() => import("./pages/manager/Approvals").then((m) => ({ default: m.Approvals })));
+const People = lazy(() => import("./pages/manager/People").then((m) => ({ default: m.People })));
+const TvSetup = lazy(() => import("./pages/manager/TvSetup").then((m) => ({ default: m.TvSetup })));
+const MdPeople = lazy(() => import("./pages/md/People").then((m) => ({ default: m.MdPeople })));
+const MdPersonHistory = lazy(() => import("./pages/md/Person").then((m) => ({ default: m.MdPersonHistory })));
+const MdUsage = lazy(() => import("./pages/md/Usage").then((m) => ({ default: m.MdUsage })));
+const PrivacyPage = lazy(() => import("./pages/phone/PrivacyNotice").then((m) => ({ default: m.PrivacyPage })));
 const Tv = lazy(() => import("./pages/tv/Tv").then((m) => ({ default: m.Tv })));
 const TvPair = lazy(() => import("./pages/tv/Tv").then((m) => ({ default: m.TvPair })));
 
@@ -40,6 +46,11 @@ function ClocksIn({ children }: { children: (role: "worker" | "manager") => JSX.
 function ManagerOnly({ children }: { children: JSX.Element }) {
   const { me } = useSession();
   return me?.user?.role === "manager" ? children : <Navigate to="/" replace />;
+}
+
+function MdOnly({ children }: { children: JSX.Element }) {
+  const { me } = useSession();
+  return me?.user?.role === "md" ? children : <Navigate to="/md/login" replace />;
 }
 
 export function App() {
@@ -78,11 +89,17 @@ export function App() {
         <Route path="/reasons" element={<ClocksIn>{(role) => <Reasons role={role} />}</ClocksIn>} />
         <Route path="/team" element={<ManagerOnly><Team /></ManagerOnly>} />
         <Route path="/approvals" element={<ManagerOnly><ManagerApprovals /></ManagerOnly>} />
+        <Route path="/people" element={<ManagerOnly><People /></ManagerOnly>} />
+        <Route path="/people/tv" element={<ManagerOnly><TvSetup /></ManagerOnly>} />
         <Route path="/invite/:token" element={<Welcome />} />
         <Route path="/md/login" element={<MdSignIn />} />
         <Route path="/md" element={<MdHome />} />
         <Route path="/md/approvals" element={<MdApprovals />} />
         <Route path="/md/activity" element={<MdActivity />} />
+        <Route path="/md/people" element={<MdOnly><MdPeople /></MdOnly>} />
+        <Route path="/md/people/:id" element={<MdOnly><MdPersonHistory /></MdOnly>} />
+        <Route path="/md/usage" element={<MdOnly><MdUsage /></MdOnly>} />
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>

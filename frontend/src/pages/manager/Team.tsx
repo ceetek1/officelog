@@ -1,12 +1,14 @@
 // Team today (Prototype B "Manager · Team today"; spec §10). Refreshes every 30 seconds.
 import { useCallback, useEffect, useState } from "react";
 import { getTeamToday, type TeamToday } from "../../api";
-import { initials } from "../../format";
+import { firstName, initials } from "../../format";
 import { Button } from "../../ui/Button";
 import { MainPill } from "../../ui/DayPills";
 import { Pill } from "../../ui/Pill";
 import { StatCards } from "../../ui/StatCards";
+import { Alert } from "../../ui/Alert";
 import { TabBar } from "../../ui/TabBar";
+import { PaperSheetIcon, PaperTimeSheet } from "./PaperTime";
 
 type Person = TeamToday["people"][number];
 
@@ -22,6 +24,8 @@ const SECTIONS: { title: string; pick: (p: Person) => boolean }[] = [
 export function Team() {
   const [data, setData] = useState<TeamToday | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [paper, setPaper] = useState(false);
+  const [saved, setSaved] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try { setData(await getTeamToday()); setError(null); } catch (e) {
@@ -37,7 +41,11 @@ export function Team() {
   return (
     <div className="phone">
       <header className="phone-header">
-        <div className="phone-header-top" />
+        <div className="phone-header-top">
+          <button type="button" className="header-icon" aria-label="Add time from paper sheet" onClick={() => setPaper(true)}>
+            <PaperSheetIcon />
+          </button>
+        </div>
         {data && <span className="eyebrow">{data.date}</span>}
         <h1 className="large-title">Team</h1>
       </header>
@@ -70,7 +78,9 @@ export function Team() {
                         <span className="row-body">
                           <span className="two-line">
                             <span style={{ fontWeight: 600 }}>{p.name}</span>
-                            {p.clock_in?.source === "paper" && <span className="sub-note">Added from paper</span>}
+                            {(p.clock_in?.source === "paper" || p.clock_out?.source === "paper") && (
+                              <span className="sub-note">Added from paper by {firstName((p.clock_in?.source === "paper" ? p.clock_in : p.clock_out)?.entered_by || "")}</span>
+                            )}
                           </span>
                           <span className="row-right">
                             <span className="mono">
@@ -94,6 +104,9 @@ export function Team() {
         )}
       </main>
       <TabBar role="manager" />
+      {paper && <PaperTimeSheet onClose={() => setPaper(false)}
+        onSaved={(m) => { setPaper(false); setSaved(m); void load(); }} />}
+      {saved && <Alert title="Time Added" message={saved} actions={[{ label: "OK", onPress: () => setSaved(null) }]} />}
     </div>
   );
 }

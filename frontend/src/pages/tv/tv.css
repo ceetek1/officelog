@@ -80,3 +80,18 @@
 }
 .tv-message h1 { font-size: 96px; font-weight: 800; margin: 0 0 24px; }
 .tv-message p { font-size: 44px; color: #525252; margin: 0; }
+
+/* Setup code entry (unpaired TV). No flex gap: old TV browsers lack it. */
+.tv-setup-row { display: -webkit-box; display: -webkit-flex; display: flex; margin-top: 56px; }
+.tv-setup-input {
+  width: 720px; height: 120px; border: 3px solid #d4d4d4; border-radius: 20px; background: #fff; padding: 0 32px;
+  font-family: "Atkinson Hyperlegible Mono", monospace; font-size: 72px; font-weight: 700; color: #171717;
+  letter-spacing: 0.04em; margin-right: 24px;
+}
+.tv-setup-input:focus { outline: none; border-color: #1d4ed8; }
+.tv-setup-button {
+  height: 120px; padding: 0 56px; border: none; border-radius: 20px; background: #1d4ed8; color: #fff;
+  font-size: 52px; font-weight: 700; font-family: inherit; cursor: pointer;
+}
+.tv-setup-button:disabled { opacity: 0.55; }
+.tv-setup-error { color: #b91c1c !important; margin-top: 32px !important; }

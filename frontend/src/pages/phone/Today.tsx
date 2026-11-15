@@ -1,7 +1,7 @@
 // Today: one big button (Clock In / Clock Out) or "Done for today" (spec §4.2).
 // Prototype B boards "4 · Today: Clock in", "7 · Today: Clock out", "8 · Done for today".
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ApiError, getToday, logout, type Kind, type ReasonType, type Role, type Today as TodayData } from "../../api";
 import { initials, worked } from "../../format";
 import { useSession } from "../../session";
@@ -25,6 +25,7 @@ const CONFIRM_WITHIN_MS = 5 * 60 * 1000;
 
 export function Today({ role }: { role: Role }) {
   const { refresh } = useSession();
+  const navigate = useNavigate();
   const [today, setToday] = useState<TodayData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [flow, setFlow] = useState<{ kind: Kind; confirm: boolean; t0: number } | null>(null);
@@ -163,7 +164,8 @@ export function Today({ role }: { role: Role }) {
         />
       )}
       {menu && (
-        <ActionSheet onCancel={() => setMenu(false)} actions={[{ label: "Sign Out", destructive: true, onPress: signOut }]} />
+        <ActionSheet onCancel={() => setMenu(false)} actions={[{ label: "Privacy Notice", onPress: () => { setMenu(false); navigate("/privacy"); } },
+          { label: "Sign Out", destructive: true, onPress: signOut }]} />
       )}
       {flow && (
         <ClockFlow kind={flow.kind} confirm={flow.confirm} t0={flow.t0}

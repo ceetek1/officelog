@@ -29,12 +29,22 @@ TABLE = [
     ("Approves or rejects the manager's reasons", "POST", "/api/reasons/{manager_reason}/decision", {"decision": "approved"}, {D}),
     ("Overrides any decision", "POST", "/api/reasons/{decided_reason}/override", {"decision": "rejected"}, {D}),
     ("Sees the activity log", "GET", "/api/activity", None, {D}),
-    pytest.param("Adds, deactivates workers; resets a lost phone", "POST", "/api/people", {}, {M},
-                 marks=pytest.mark.skip(reason="People endpoints arrive in Step 5")),
-    pytest.param("Sets up or revokes the entrance kiosk", "POST", "/api/kiosks", {}, {M},
-                 marks=pytest.mark.skip(reason="Kiosk setup endpoints arrive in Step 5")),
-    pytest.param("Sees the usage numbers", "GET", "/api/usage", None, {D},
-                 marks=pytest.mark.skip(reason="Usage arrives in Step 6")),
+    ("Adds, deactivates workers; resets a lost phone (add)", "POST", "/api/people", {"name": "New Person"}, {M}),
+    ("Adds, deactivates workers; resets a lost phone (list)", "GET", "/api/people", None, {M}),
+    ("Adds, deactivates workers; resets a lost phone (reset)", "POST", "/api/people/{other}/reset-phone", None, {M}),
+    ("Adds, deactivates workers; resets a lost phone (deactivate)", "POST", "/api/people/{other}/deactivate", None, {M}),
+    ("Sets up or revokes the entrance kiosk (link)", "POST", "/api/kiosks", None, {M}),
+    ("Sets up or revokes the entrance kiosk (list)", "GET", "/api/kiosks", None, {M}),
+    ("Sets up or revokes the entrance kiosk (revoke)", "POST", "/api/kiosks/{kiosk}/revoke", None, {M}),
+    # Decision D3: time from the paper sheet. The manager and the MD, never a worker.
+    ("Adds time from the paper sheet", "POST", "/api/paper",
+     {"user_id": "{other}", "work_date": "2026-11-16", "clock_in": "07:00", "reason": "no_smartphone"}, {M, D}),
+    ("Adds time from the paper sheet (form)", "GET", "/api/paper/day", None, {M, D}),
+    ("Sees the usage numbers", "GET", "/api/usage", None, {D}),
+    # MD pages (spec §10): the Today board and history per person.
+    ("Sees everyone's times (MD Today board)", "GET", "/api/md/today", None, {D}),
+    ("Sees everyone's times (MD people)", "GET", "/api/md/people", None, {D}),
+    ("Sees everyone's times (MD history per person)", "GET", "/api/md/people/{other}/history", None, {D}),
 ]
 
 
@@ -54,6 +64,10 @@ def world(client, make_user, session_for, md, owner, clock):
                 {"u": uid, "d": day, "t": typ}).scalar_one()
         conn.execute(text("INSERT INTO decisions (reason_id, actor_id, decision) VALUES (:r, :a, 'approved')"),
                      {"r": reasons["decided_reason"], "a": ids[M]})
+        reasons["kiosk"] = conn.execute(text(
+            "INSERT INTO kiosks (setup_token_hash, setup_expires_at) VALUES ('\\x00', now() + interval '1 day') "
+            "RETURNING id")).scalar_one()
+    reasons["other"] = other
     return {role: As(client, session_for, uid) for role, uid in ids.items()}, reasons
 
 
@@ -61,6 +75,8 @@ def world(client, make_user, session_for, md, owner, clock):
 def test_permission_table(world, row, method, path, body, allowed):
     users, reasons = world
     url = path.format(**reasons)
+    if isinstance(body, dict):
+        body = {k: (reasons["other"] if v == "{other}" else v) for k, v in body.items()}
     for role in (W, M, D):
         r = users[role]._go(method, url, **({"json": body} if body is not None else {}))
         detail = r.json().get("detail") if r.status_code >= 400 else None

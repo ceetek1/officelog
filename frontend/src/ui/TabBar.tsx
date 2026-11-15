@@ -1,4 +1,4 @@
-// iOS bottom tab bar. Workers: Today, History, Reasons. Manager: Me, Team, Approvals (People in Step 5).
+// iOS bottom tab bar. Workers: Today, History, Reasons. Manager: Me, Team, Approvals, People.
 import { useEffect, useState, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { getApprovals, type Role } from "../api";
@@ -11,6 +11,7 @@ const Icon = ({ d }: { d: ReactNode }) => (
 const calendar = <Icon d={<><rect x="3.5" y="5" width="17" height="15" rx="2" /><path d="M3.5 10h17M8 3v4M16 3v4" /></>} />;
 const bubble = <Icon d={<path d="M5 5h14v10H9l-4 4z" />} />;
 const people = <Icon d={<><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20a6.5 6.5 0 0113 0M16 4.5a3.5 3.5 0 010 7M18 14a6.5 6.5 0 013.5 6" /></>} />;
+const person = <Icon d={<><circle cx="12" cy="8" r="3.5" /><path d="M5 20c1-3.6 3.8-5.5 7-5.5s6 1.9 7 5.5" /></>} />;
 const tray = <Icon d={<><path d="M4 13l2.5-8h11L20 13v6H4z" /><path d="M4 13h5a3 3 0 006 0h5" /></>} />;
 
 // The manager's "waiting" badge, shared across tab bars and refreshed after decisions.
@@ -31,13 +32,14 @@ export function TabBar({ role }: { role: Role }) {
 
   const tabs = role === "manager"
     ? [{ to: "/", label: "Me", icon: <ClockIcon size={28} stroke={1.8} /> }, { to: "/team", label: "Team", icon: people },
-       { to: "/approvals", label: "Approvals", icon: tray, badge: waiting }]
+       { to: "/approvals", label: "Approvals", icon: tray, badge: waiting },
+       { to: "/people", label: "People", icon: person, prefix: true }]
     : [{ to: "/", label: "Today", icon: <ClockIcon size={28} stroke={1.8} /> }, { to: "/history", label: "History", icon: calendar },
        { to: "/reasons", label: "Reasons", icon: bubble }];
   return (
     <nav className="tabbar" aria-label="Tabs">
       {tabs.map((t) => (
-        <NavLink key={t.to} to={t.to} end className={({ isActive }) => `tab${isActive ? " tab-active" : ""}`}>
+        <NavLink key={t.to} to={t.to} end={!("prefix" in t)} className={({ isActive }) => `tab${isActive ? " tab-active" : ""}`}>
           {t.icon}<span>{t.label}</span>
           {"badge" in t && t.badge ? <span className="tab-badge" aria-label={`${t.badge} waiting`}>{t.badge}</span> : null}
         </NavLink>
