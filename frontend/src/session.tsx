@@ -28,7 +28,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   }, [setMe]);
 
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    if (!window.location.pathname.startsWith("/tv")) void refresh();
+  }, [refresh]);
 
   return <Ctx.Provider value={{ me, error, refresh, setMe }}>{children}</Ctx.Provider>;
 }

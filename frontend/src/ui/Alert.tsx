@@ -1,7 +1,7 @@
 // System-style alert (centered, title + message + actions), as in Prototype B.
 import { useEffect, useId, useRef, type ReactNode } from "react";
 
-export interface AlertAction { label: string; onPress: () => void; bold?: boolean }
+export interface AlertAction { label: string; onPress: () => void; bold?: boolean; cancel?: boolean }
 
 export function Alert({ title, message, actions, icon }: {
   title: string; message?: string; actions: AlertAction[]; icon?: ReactNode;
@@ -10,7 +10,9 @@ export function Alert({ title, message, actions, icon }: {
   const firstButton = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     firstButton.current?.focus();
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") actions[actions.length - 1].onPress(); };
+    // Escape = the Cancel action, or the only action. Never a confirming one.
+    const escape = actions.find((a) => a.cancel) || (actions.length === 1 ? actions[0] : undefined);
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape" && escape) escape.onPress(); };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [actions]);

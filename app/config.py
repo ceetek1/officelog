@@ -38,12 +38,20 @@ class Settings(BaseSettings):
     # Public address of the site, e.g. https://attendance.example.com (used in invite links).
     base_url: str = "http://localhost:8000"
 
+    # Secret behind the rotating TV codes (spec §5). At least 32 characters.
+    master_secret: str = Field(min_length=32)
+    # Extra web origins allowed for Face ID (e.g. the Vite dev server). BASE_URL is always allowed.
+    extra_origins: str = ""
+
     timezone: str = "Africa/Lagos"
     schedule_json: str = ""
     holidays: str = ""
 
     session_days: int = 30
     cookie_secure: bool = True
+
+    # Identifies the running build; the TV reloads itself when it changes. Railway sets this.
+    railway_git_commit_sha: str = "dev"
 
     # Where the built frontend lives. Empty disables static serving (API only).
     frontend_dist: str = "frontend/dist"
@@ -64,6 +72,17 @@ class Settings(BaseSettings):
     @classmethod
     def _strip_slash(cls, v: str) -> str:
         return v.rstrip("/")
+
+    @property
+    def rp_id(self) -> str:
+        """WebAuthn relying-party id: the site's host name, e.g. attendance.example.com."""
+        from urllib.parse import urlsplit
+
+        return urlsplit(self.base_url).hostname or "localhost"
+
+    @property
+    def origins(self) -> list[str]:
+        return [self.base_url] + [o.strip().rstrip("/") for o in self.extra_origins.split(",") if o.strip()]
 
     @property
     def tz(self) -> ZoneInfo:

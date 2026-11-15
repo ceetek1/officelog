@@ -104,12 +104,41 @@ class Invite(Base):
 
 
 class Kiosk(Base):
+    """The entrance TV. It is paired once with a single-use setup link; after that it holds a
+    long-lived kiosk token in an httpOnly cookie. It never signs in and holds no code secret."""
+
     __tablename__ = "kiosks"
     id: Mapped[int] = _pk()
-    token_hash: Mapped[bytes] = mapped_column(LargeBinary, nullable=False, unique=True)
-    created_by: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    token_hash: Mapped[bytes | None] = mapped_column(LargeBinary, unique=True)  # set when paired
+    setup_token_hash: Mapped[bytes] = mapped_column(LargeBinary, nullable=False, unique=True)
+    setup_expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    paired_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"))  # NULL = admin CLI
     created_at: Mapped[datetime] = _now()
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class WebauthnChallenge(Base):
+    """A one-time WebAuthn challenge (decision D1). ``purpose`` is register, login or clock.
+    For clock challenges, ``data`` holds what the scan checked (kind, server time, window …)."""
+
+    __tablename__ = "webauthn_challenges"
+    id: Mapped[int] = _pk()
+    challenge: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    purpose: Mapped[str] = mapped_column(String(10), nullable=False)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
+    invite_id: Mapped[int | None] = mapped_column(ForeignKey("invites.id"))
+    session_id: Mapped[int | None] = mapped_column(ForeignKey("sessions.id"))
+    data: Mapped[dict | None] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    __table_args__ = (
+        CheckConstraint("purpose IN ('register', 'login', 'clock')", name="purpose_valid"),
+        Index("ix_webauthn_challenges_expires_at", "expires_at"),
+    )
 
 
 class Session(Base):

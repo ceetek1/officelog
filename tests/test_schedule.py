@@ -11,7 +11,7 @@ def test_default_schedule_matches_decision_d5():
     thu = s.for_date(date(2026, 11, 19))
     sat = s.for_date(date(2026, 11, 21))
     assert (mon.start, mon.grace_minutes, mon.close) == (time(8), 10, time(17))
-    assert (thu.start, thu.grace_minutes, thu.close) == (time(10), 10, time(17))
+    assert (thu.start, thu.grace_minutes, thu.close) == (time(10), 5, time(15))
     assert (sat.start, sat.grace_minutes, sat.close) == (time(8), 5, time(15))
     assert s.for_date(date(2026, 11, 22)) is None  # Sunday off
     for d in (16, 17, 18, 20):  # Mon Tue Wed Fri

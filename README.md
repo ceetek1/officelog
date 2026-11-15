@@ -8,8 +8,14 @@ sees how much the system is actually used.
 - Where the build differs from the spec, and why: [`docs/decisions.md`](docs/decisions.md)
 - Deploying: [`docs/deploy-railway.md`](docs/deploy-railway.md)
 
-**Status:** Step 1 of 6 (repository, database, admin commands, MD sign-in, sessions). Phone
-sign-in, the TV and clocking in come in Step 2.
+**Status:** Steps 1–2 of 6. Done: database, admin commands, MD sign-in, the entrance TV, invites
+with Face ID, clocking in and out with receipts. Next: rules, Today/History screens and the
+manager's Team today (Step 3).
+
+Pages: `/` phone app · `/invite/<token>` new phone · `/tv` entrance TV · `/md/login` MD.
+
+Phones need **HTTPS** for the camera and Face ID, so real-phone testing happens on the Railway
+site (or another HTTPS address), not on `http://localhost` from another device.
 
 ## Layout
 
@@ -71,7 +77,7 @@ TEST_DATABASE_ADMIN_URL=postgresql://postgres@localhost:5432/postgres uv run pyt
 ```
 
 ```bash
-(cd frontend && npm run build)
+(cd frontend && npm test && npm run build)
 ```
 
 ## Admin commands
@@ -86,6 +92,8 @@ uv run python -m app.admin --help
 | `create-md --name --email` | Creates the MD (asks for a password). |
 | `reset-md-password --email` | Sets a new password for the MD. |
 | `create-manager --name` | Creates the manager and prints their one-time invite link. |
+| `create-worker --name` | Creates a worker and prints their one-time invite link (until Step 5's People screen). |
+| `create-tv-link` | Prints a one-time link that pairs the entrance TV (until Step 5's TV screen). |
 
 ## Environment variables
 

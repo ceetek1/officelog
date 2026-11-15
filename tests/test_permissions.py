@@ -10,11 +10,18 @@ from app.main import ROUTERS
 
 ROLES = ("worker", "manager", "md")
 
-# Routes anyone may call. Everything else must declare its roles with require_roles().
+# Routes not tied to a user role. Everything else must declare its roles with require_roles().
 PUBLIC = {
     ("POST", "/api/auth/password-login"),
+    ("POST", "/api/auth/passkey/options"),
+    ("POST", "/api/auth/passkey/login"),
     ("POST", "/api/auth/logout"),  # any signed-in user
     ("GET", "/api/auth/me"),
+    ("GET", "/api/invites/{token}"),  # the invite token is the credential
+    ("POST", "/api/invites/{token}/options"),
+    ("POST", "/api/invites/{token}/register"),
+    ("POST", "/api/kiosk/pair"),  # the single-use TV setup token is the credential
+    ("GET", "/api/kiosk/code"),  # the TV's kiosk cookie is the credential
 }
 
 
@@ -60,7 +67,9 @@ def test_worker_and_manager_can_see_their_own_day(client, make_user, session_for
         body = r.json()
         assert body["work_date"] == "2026-11-16"
         assert body["working_day"] is True
-        assert body["schedule"] == {"start": "08:00", "grace_minutes": 10, "close": "17:00"}
+        assert body["schedule"] == {"start": "08:00", "grace_minutes": 10, "on_time_until": "08:10",
+                                    "close": "17:00"}
+        assert body["date"] == "Monday 16 November"
 
 
 def test_every_route_declares_its_roles():

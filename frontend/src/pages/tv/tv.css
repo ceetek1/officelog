@@ -1,0 +1,82 @@
+/* Entrance TV, 1920×1080, light (Prototype B). Built for old smart-TV browsers:
+   flexbox only (no grid, no flex gap), no CSS variables needed for layout. */
+.tv-viewport {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden;
+  background: #fafafa; color: #171717; cursor: none;
+}
+.tv-stage {
+  position: absolute; top: 0; left: 0; width: 1920px; height: 1080px;
+  -webkit-transform-origin: 0 0; transform-origin: 0 0;
+  font-family: "Atkinson Hyperlegible Next", system-ui, sans-serif;
+}
+.tv-inner {
+  position: absolute; top: 64px; left: 104px; right: 104px; bottom: 56px;
+  display: -webkit-box; display: -webkit-flex; display: flex;
+}
+.tv-left {
+  -webkit-box-flex: 1; -webkit-flex: 1 1 0; flex: 1 1 0; min-width: 0; margin-right: 96px;
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-orient: vertical; -webkit-flex-direction: column; flex-direction: column;
+}
+.tv-header { display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-pack: justify; -webkit-justify-content: space-between; justify-content: space-between; -webkit-align-items: baseline; align-items: baseline; }
+.tv-greet { font-size: 52px; font-weight: 700; color: #525252; }
+.tv-clock { font-size: 40px; font-weight: 600; color: #525252; }
+.tv-mono { font-family: "Atkinson Hyperlegible Mono", ui-monospace, monospace; }
+.tv-clock .tv-mono { font-weight: 700; color: #171717; }
+.tv-hero {
+  -webkit-box-flex: 1; -webkit-flex: 1 1 auto; flex: 1 1 auto;
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-orient: vertical; -webkit-flex-direction: column; flex-direction: column;
+  -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
+}
+.tv-hello { font-size: 88px; font-weight: 700; line-height: 1.1; }
+.tv-name {
+  font-size: 220px; font-weight: 800; line-height: 1; letter-spacing: -0.01em; margin-top: 8px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tv-time { font-size: 96px; font-weight: 700; margin-top: 24px; }
+.tv-headline { font-size: 120px; font-weight: 800; line-height: 1.05; }
+.tv-sub { font-size: 44px; color: #525252; margin-top: 16px; }
+.tv-earlier-title { font-size: 30px; font-weight: 700; color: #737373; margin-bottom: 16px; }
+.tv-chips { list-style: none; margin: 0; padding: 0; display: -webkit-box; display: -webkit-flex; display: flex; -webkit-flex-wrap: wrap; flex-wrap: wrap; }
+.tv-chip {
+  display: -webkit-box; display: -webkit-flex; display: flex; -webkit-align-items: baseline; align-items: baseline;
+  padding: 12px 24px; border-radius: 24px; background: #fff; border: 2px solid #e5e5e5;
+  margin: 0 14px 14px 0;
+}
+.tv-chip-name { font-size: 36px; font-weight: 700; margin-right: 14px; }
+.tv-chip-time { font-size: 32px; font-weight: 500; color: #525252; }
+.tv-paper {
+  margin-top: 28px; font-size: 30px; font-weight: 600; color: #525252;
+  display: -webkit-box; display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center;
+}
+.tv-paper svg { margin-right: 14px; }
+.tv-card {
+  width: 600px; -webkit-flex-shrink: 0; flex-shrink: 0; box-sizing: border-box;
+  background: #fff; border: 2px solid #e5e5e5; border-radius: 24px; padding: 44px 60px;
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-orient: vertical; -webkit-flex-direction: column; flex-direction: column;
+  -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center;
+  text-align: center;
+}
+.tv-card-title { font-size: 46px; font-weight: 800; line-height: 1.1; }
+.tv-qr { width: 480px; height: 480px; margin: 22px 0; display: block; }
+.tv-typed { width: 100%; padding-top: 20px; border-top: 2px solid #f0f0f0; }
+.tv-typed-label { font-size: 28px; font-weight: 600; color: #525252; }
+.tv-typed-code { font-size: 88px; line-height: 1; font-weight: 700; letter-spacing: 0.04em; margin: 10px 0; }
+.tv-bar { width: 400px; height: 12px; border-radius: 999px; background: #f5f5f5; overflow: hidden; margin: 0 auto; }
+.tv-bar-fill { height: 100%; background: #1d4ed8; border-radius: 999px; -webkit-transition: width 1s linear; transition: width 1s linear; }
+.tv-offline-pill {
+  -webkit-align-self: flex-start; align-self: flex-start; padding: 12px 28px; border-radius: 999px;
+  background: #fef2f2; color: #b91c1c; font-size: 36px; font-weight: 700; margin-bottom: 28px;
+}
+.tv-paused { font-size: 46px; font-weight: 800; color: #b91c1c; line-height: 1.2; }
+.tv-paused-sub { font-size: 30px; color: #525252; margin-top: 18px; }
+.tv-message {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0; padding: 120px;
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-orient: vertical; -webkit-flex-direction: column; flex-direction: column;
+  -webkit-justify-content: center; justify-content: center;
+}
+.tv-message h1 { font-size: 96px; font-weight: 800; margin: 0 0 24px; }
+.tv-message p { font-size: 44px; color: #525252; margin: 0; }

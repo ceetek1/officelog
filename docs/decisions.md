@@ -57,8 +57,8 @@ React components, not pasted.
   must choose why: **"TV not working"**, **"No smartphone"**, or **"Phone dead or forgotten"**.
   - It is stored as a scan with `source = 'paper'` and `entered_by`. It can never be edited, it always
     appears in the activity log, and it is shown as "added from paper by <name>".
-  - **Open question for the owner:** may the manager enter their **own** paper time, or only the MD?
-    **Until answered, the manager may not enter their own** (the MD may).
+  - **Answered 2026-11-15:** the manager **may** enter their own paper time. It is still logged and
+    shown as "added from paper by <name>", so the MD can see it.
 - **Why:** some workers have no smartphone, and the TV or a phone can fail. This deliberately relaxes
   "nobody edits a recorded time": it adds a time, visibly and permanently, instead of changing one.
 
@@ -78,12 +78,12 @@ React components, not pasted.
   | Day | Start | Grace | Close | Notes |
   |---|---|---|---|---|
   | Mon, Tue, Wed, Fri | 08:00 | 10 min | 17:00 | |
-  | Thu | 10:00 | 10 min | 17:00 | grace and close **assumed, to confirm** |
+  | Thu | 10:00 | 5 min | 15:00 | confirmed 2026-11-15 |
   | Sat | 08:00 | 5 min | 15:00 | start may change |
   | Sun | off | | | |
 
-  - The **missing clock-out** cutoff is per day: **close + 60 minutes** by default
-    (`missing_out_after_minutes`). **To confirm with the owner.**
+  - The **missing clock-out** cutoff is per day: **close + 60 minutes** (`missing_out_after`),
+    confirmed 2026-11-15. So Mon–Wed and Fri 18:00, Thu and Sat 16:00.
   - Holidays stay an environment variable (`HOLIDAYS`, comma-separated dates).
   - The §12 late-boundary tests are extended for Thursday and Saturday.
 
@@ -125,3 +125,15 @@ These are small choices the spec leaves open. They are listed so a reviewer sees
 - **B3. Session cookie.** The cookie holds a random token; the database stores only its SHA-256 hash.
 - **B4. Fonts are bundled** with the app (from `@fontsource`), not loaded from Google, so the TV and
   phones need no third-party request and nothing is shared with Google.
+- **B5. The clock time is when the code was checked.** Clocking is two calls: the phone sends the
+  scanned code (the server checks it and notes the time), then Face ID's answer (the server records
+  the scan with the noted time). So a slow Face ID prompt can't make someone late or let a stale
+  code through.
+- **B6. Until Step 5's screens exist,** workers are added and the TV is paired with admin commands
+  (`create-worker`, `create-tv-link`). Pairing links work once, for 24 hours.
+- **B7. Old TV browsers.** The build adds a second, "legacy" bundle with polyfills for browsers too
+  old for modern JavaScript, so older Samsung and LG TVs can run the board. The TV layout uses only
+  flexbox without `gap`, which old browsers lack.
+- **B8. When the TV loses the server,** it hides the QR and typed code after 10 seconds (they'd be
+  stale) and shows "Connection lost · scans paused". It recovers by itself, reloads itself if its
+  loop stops, when a new version is deployed, and once a day around 04:00.

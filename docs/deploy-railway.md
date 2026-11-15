@@ -27,6 +27,7 @@ Open the **officelog** service → **Variables**, and add:
 |---|---|
 | `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` (type it exactly like this; Railway fills it in) |
 | `APP_DB_PASSWORD` | a long random string, e.g. from `python3 -c "import secrets; print(secrets.token_urlsafe(32))"` |
+| `MASTER_SECRET` | another long random string (makes the TV codes). Keep it secret. |
 | `BASE_URL` | the site's address from step 3, e.g. `https://officelog-production.up.railway.app` (no trailing slash) |
 | `COOKIE_SECURE` | `true` |
 | `COMPANY_NAME` | your company's name, shown on the sign-in screen |
@@ -79,6 +80,20 @@ phone:
 python -m app.admin create-manager --name "Emeka Okonkwo"
 ```
 
+Until the manager's People screen arrives (Step 5), add workers the same way. Each gets a one-time
+link to open on their own phone:
+
+```bash
+python -m app.admin create-worker --name "Adaeze Obi"
+```
+
+And until the manager's TV screen arrives (Step 5), pair the entrance TV with a link that works once,
+for 24 hours. Open it in the TV's web browser:
+
+```bash
+python -m app.admin create-tv-link
+```
+
 Type `exit` to leave. Other commands: `python -m app.admin --help`.
 
 The MD signs in at `https://<your-address>/md/login`.
@@ -87,6 +102,12 @@ The MD signs in at `https://<your-address>/md/login`.
 
 Railway's Postgres service has a **Backups** tab. Turn on scheduled backups there. Step 6 of the
 build asks you to restore one backup once, to be sure it works.
+
+## Important: choose the address before people register
+
+Face ID passkeys belong to the site's host name (`BASE_URL`). If you later move to a different
+address (for example a custom domain), every phone has to register again with a new invite. So set
+up the custom domain, if you want one, **before** inviting workers.
 
 ## Changing settings later
 

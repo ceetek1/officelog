@@ -29,6 +29,7 @@ os.environ.update({
     "BASE_URL": "https://attendance.test",
     "SCHEDULE_JSON": "",
     "HOLIDAYS": "2026-12-25",
+    "MASTER_SECRET": "test-master-secret-0123456789abcdef",
 })
 
 
@@ -145,3 +146,44 @@ def session_for(owner, clock):
 
 def login_md(client, email: str = MD_EMAIL, password: str = MD_PASSWORD):
     return client.post("/api/auth/password-login", json={"email": email, "password": password})
+
+
+@pytest.fixture
+def invite_for(owner, clock):
+    """Create an invite for a user directly. Returns the raw token."""
+    from app.security import new_token, token_hash
+
+    def _invite(user_id: int, hours: int = 48) -> str:
+        token = new_token()
+        with owner.begin() as conn:
+            conn.execute(text("INSERT INTO invites (user_id, token_hash, created_at, expires_at) "
+                              "VALUES (:u, :h, :now, :exp)"),
+                         {"u": user_id, "h": token_hash(token), "now": clock.now(),
+                          "exp": clock.now() + timedelta(hours=hours)})
+        return token
+
+    return _invite
+
+
+def register_phone(client, token: str, phone=None, **kw):
+    """Walk an invite through Face ID setup. Returns (response, phone)."""
+    from tests.softauthn import Phone
+
+    phone = phone or Phone()
+    opts = client.post(f"/api/invites/{token}/options").json()
+    cred = phone.create(opts["options"], **kw)
+    r = client.post(f"/api/invites/{token}/register",
+                    json={"challenge_id": opts["challenge_id"], "credential": cred, "privacy_ack": True})
+    return r, phone
+
+
+@pytest.fixture
+def registered(client, make_user, invite_for):
+    """A worker with a registered phone, signed in on ``client``. Returns (user_id, phone, csrf)."""
+    def _reg(name: str = "Adaeze Obi", role: str = "worker"):
+        uid = make_user(name, role)
+        r, phone = register_phone(client, invite_for(uid))
+        assert r.status_code == 200, r.text
+        return uid, phone, r.json()["csrf_token"]
+
+    return _reg

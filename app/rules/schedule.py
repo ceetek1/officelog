@@ -56,12 +56,12 @@ def _weekday(start: str, grace: int, close: str) -> dict:
     return {"start": start, "grace": grace, "close": close}
 
 
-# Decision D5 defaults. Thursday's grace and close are assumed until the owner confirms.
+# Decision D5 defaults, as confirmed by the owner on 2026-11-15.
 DEFAULT_SCHEDULE_JSON: dict[str, dict | None] = {
     "mon": _weekday("08:00", 10, "17:00"),
     "tue": _weekday("08:00", 10, "17:00"),
     "wed": _weekday("08:00", 10, "17:00"),
-    "thu": _weekday("10:00", 10, "17:00"),
+    "thu": _weekday("10:00", 5, "15:00"),
     "fri": _weekday("08:00", 10, "17:00"),
     "sat": _weekday("08:00", 5, "15:00"),
     "sun": None,

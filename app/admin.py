@@ -4,6 +4,8 @@
     python -m app.admin create-md --name "Folake Adeyemi" --email folake@example.com
     python -m app.admin reset-md-password --email folake@example.com
     python -m app.admin create-manager --name "Emeka Okonkwo"
+    python -m app.admin create-worker --name "Adaeze Obi"
+    python -m app.admin create-tv-link
 
 Passwords are read with a hidden prompt, or from standard input with ``--password-stdin``.
 """
@@ -26,10 +28,11 @@ from app.clock import SystemClock
 from app.config import get_settings
 from app.db import app_engine, owner_engine
 from app.dbrole import ensure_app_role
-from app.models import Invite, User
+from app.models import Invite, Kiosk, User
 from app.security import hash_password, new_token, token_hash
 
 INVITE_LIFETIME = timedelta(hours=48)
+TV_LINK_LIFETIME = timedelta(hours=24)
 MIN_PASSWORD = 10
 
 
@@ -126,6 +129,39 @@ def create_manager(name: str) -> None:
     print(link)
 
 
+def create_worker(name: str) -> None:
+    """Until the manager's People screen exists (Step 5), workers can be added here."""
+    name = name.strip()
+    if not name:
+        _fail("give a name")
+    with DbSession(app_engine()) as db:
+        user = User(name=name, role="worker")
+        db.add(user)
+        db.flush()
+        activity.log(db, actor_id=None, action="user_add", entity="user", entity_id=user.id,
+                     after={"name": name, "role": "worker"})
+        link = create_invite(db, user.id, created_by=None)
+        db.commit()
+    print(f"Created worker {name}.")
+    print("Open this link on their own phone within 48 hours (it works once):")
+    print(link)
+
+
+def create_tv_link() -> None:
+    """A single-use link that pairs the entrance TV (24 hours). The manager's TV screen comes in Step 5."""
+    now = SystemClock().now()
+    token = new_token()
+    with DbSession(app_engine()) as db:
+        kiosk = Kiosk(setup_token_hash=token_hash(token), setup_expires_at=now + TV_LINK_LIFETIME,
+                      created_at=now)
+        db.add(kiosk)
+        db.flush()
+        activity.log(db, actor_id=None, action="kiosk_create", entity="kiosk", entity_id=kiosk.id)
+        db.commit()
+    print("Open this link once in the TV's web browser within 24 hours:")
+    print(f"{get_settings().base_url}/tv/pair/{token}")
+
+
 def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(prog="python -m app.admin")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -139,6 +175,9 @@ def main(argv: list[str] | None = None) -> None:
     r.add_argument("--password-stdin", action="store_true")
     m = sub.add_parser("create-manager", help="create the manager and print their invite link")
     m.add_argument("--name", required=True)
+    w = sub.add_parser("create-worker", help="create a worker and print their invite link")
+    w.add_argument("--name", required=True)
+    sub.add_parser("create-tv-link", help="print a single-use link that pairs the entrance TV")
     a = p.parse_args(argv)
 
     if a.cmd == "migrate":
@@ -149,6 +188,10 @@ def main(argv: list[str] | None = None) -> None:
         reset_md_password(a.email, a.password_stdin)
     elif a.cmd == "create-manager":
         create_manager(a.name)
+    elif a.cmd == "create-worker":
+        create_worker(a.name)
+    elif a.cmd == "create-tv-link":
+        create_tv_link()
 
 
 if __name__ == "__main__":

@@ -28,6 +28,7 @@ TABLE_PRIVILEGES: dict[str, tuple[str, ...]] = {
     "decisions": READ_INSERT,  # append-only; newest wins
     "activity_log": READ_INSERT,  # append-only
     "login_failures": READ_WRITE_DELETE,
+    "webauthn_challenges": READ_WRITE_DELETE,
 }
 
 

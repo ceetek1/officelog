@@ -106,12 +106,14 @@ def optional_user(
     return _load_session(request, db, clock.now())
 
 
-def current_user(
-    request: Request, db: DbSession = Depends(get_db), clock: Clock = Depends(get_clock)
-) -> CurrentUser:
-    cu = _load_session(request, db, clock.now())
+NOT_LOGGED_IN = {"code": "not_logged_in", "message": "Please sign in."}
+
+
+def authenticate(request: Request, db: DbSession, now: datetime) -> CurrentUser:
+    """The signed-in user, with the CSRF check for requests that change something."""
+    cu = _load_session(request, db, now)
     if cu is None:
-        raise HTTPException(status_code=401, detail={"code": "not_logged_in", "message": "Please sign in."})
+        raise HTTPException(status_code=401, detail=NOT_LOGGED_IN)
     if request.method not in SAFE_METHODS:
         sent = request.headers.get(CSRF_HEADER, "")
         if not sent or not same(sent, cu.session.csrf_token):
@@ -119,12 +121,22 @@ def current_user(
     return cu
 
 
+def forbidden() -> HTTPException:
+    return HTTPException(status_code=403, detail={"code": "forbidden", "message": "You can't do that."})
+
+
+def current_user(
+    request: Request, db: DbSession = Depends(get_db), clock: Clock = Depends(get_clock)
+) -> CurrentUser:
+    return authenticate(request, db, clock.now())
+
+
 def require_roles(*roles: str) -> Callable[..., CurrentUser]:
     """Dependency: the caller must be signed in with one of ``roles``; otherwise 401 or 403."""
 
     def dep(cu: CurrentUser = Depends(current_user)) -> CurrentUser:
         if cu.role not in roles:
-            raise HTTPException(status_code=403, detail={"code": "forbidden", "message": "You can't do that."})
+            raise forbidden()
         return cu
 
     dep.allowed_roles = frozenset(roles)  # type: ignore[attr-defined]  # read by the permissions test
