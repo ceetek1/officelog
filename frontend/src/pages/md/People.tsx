@@ -5,17 +5,22 @@ import { getMdPeople, type MdPerson } from "../../api";
 import { initials } from "../../format";
 import { ChevronRight } from "../../ui/icons";
 import { Pill } from "../../ui/Pill";
+import { ManagerCard } from "./ManagerCard";
 import { MdShell } from "./Shell";
 
 export function MdPeople() {
   const [people, setPeople] = useState<MdPerson[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  useEffect(() => { getMdPeople().then((d) => setPeople(d.people)).catch((e) => setError(e.message)); }, []);
+  const [version, setVersion] = useState(0);
+  useEffect(() => { getMdPeople().then((d) => setPeople(d.people)).catch((e) => setError(e.message)); }, [version]);
   return (
     <MdShell title="People" subtitle="Open a person to see their days, month by month.">
+      <ManagerCard onChanged={() => setVersion((v) => v + 1)} />
       {error && <p className="error-text" role="alert">{error}</p>}
       {people && (
-        <div className="group" style={{ maxWidth: 760 }}>
+        <section style={{ maxWidth: 760 }}>
+        <h2 className="group-title">Everyone</h2>
+        <div className="group">
           {people.map((p) => (
             <Link key={p.id} to={`/md/people/${p.id}`} className="row row-link" style={{ minHeight: 56 }}>
               <span className="person-initials" aria-hidden="true">{initials(p.name)}</span>
@@ -34,6 +39,7 @@ export function MdPeople() {
           ))}
           {!people.length && <p className="empty-note">Nobody added yet.</p>}
         </div>
+        </section>
       )}
     </MdShell>
   );

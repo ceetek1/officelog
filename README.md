@@ -104,7 +104,7 @@ uv run python -m app.admin --help
 | `migrate` | Updates the database and the app's restricted database user. Runs on every container start. |
 | `create-md --name --email` | Creates the MD (asks for a password). |
 | `reset-md-password --email` | Sets a new password for the MD. |
-| `create-manager --name` | Creates the manager and prints their one-time invite link. |
+| `create-manager --name` | Creates the manager and prints their one-time invite link. The MD can do the same without a shell: MD → People → **Add Manager**. |
 | `create-worker --name` | Creates a worker and prints their one-time invite link (the manager normally uses People). |
 | `reset-phone --name` | Revokes a person's phone and sessions and prints a new invite link. For the manager's own lost phone. |
 | `create-tv-link` | Prints a one-time TV setup link and code (the manager normally uses People → Entrance TV). |

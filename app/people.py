@@ -16,7 +16,8 @@ import re
 import secrets
 from datetime import datetime, timedelta
 
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session as DbSession
 
 from app import activity
@@ -52,6 +53,47 @@ def add_worker(db: DbSession, name: str, actor_id: int | None, now: datetime) ->
     activity.log(db, actor_id=actor_id, action="user_add", entity="user", entity_id=user.id,
                  after={"user_id": user.id, "name": user.name, "role": "worker"})
     return user, create_invite(db, user.id, created_by=actor_id, now=now)
+
+
+def add_manager(db: DbSession, name: str, actor_id: int | None, now: datetime) -> tuple[User, str]:
+    """The one manager (spec §2, decision D6). Refused while an active manager exists; the database's
+    unique index enforces it too, so two clicks at once can't make two managers."""
+    name = clean_name(name)
+    existing = db.scalars(select(User).where(User.role == "manager", User.active.is_(True))).first()
+    if existing is not None:
+        raise PeopleError(409, "manager_exists", f"{existing.name} is already the manager. There can be only one.")
+    user = User(name=name, role="manager", created_at=now)
+    db.add(user)
+    try:
+        with db.begin_nested():
+            db.flush()
+    except IntegrityError:
+        raise PeopleError(409, "manager_exists", "There is already a manager. There can be only one.") from None
+    activity.log(db, actor_id=actor_id, action="user_add", entity="user", entity_id=user.id,
+                 after={"user_id": user.id, "name": user.name, "role": "manager"})
+    return user, create_invite(db, user.id, created_by=actor_id, now=now)
+
+
+def phone_status(db: DbSession, users: list[User], now: datetime) -> dict[int, dict]:
+    """Where each person's phone stands: active (Face ID set up), invited, expired / no phone, or off."""
+    ids = [u.id for u in users]
+    with_phone = set(db.scalars(select(Device.user_id).where(Device.revoked_at.is_(None), Device.user_id.in_(ids))))
+    latest = dict(db.execute(
+        select(Invite.user_id, func.max(Invite.expires_at))
+        .where(Invite.used_at.is_(None), Invite.user_id.in_(ids)).group_by(Invite.user_id)).all())
+    out = {}
+    for u in users:
+        if not u.active:
+            status, label = "off", "Off"
+        elif u.id in with_phone:
+            status, label = "active", "Active"
+        elif latest.get(u.id) and latest[u.id] > now:
+            status, label = "invited", "Invited"
+        else:
+            status, label = "expired", "No phone" if u.id not in latest else "Expired"
+        out[u.id] = {"status": status, "label": label,
+                     "invite_expires_at": latest[u.id] if status == "invited" else None}
+    return out
 
 
 def _cancel_open_invites(db: DbSession, user_id: int, now: datetime) -> None:

@@ -231,3 +231,12 @@ export const getUsage = (from?: string, to?: string) => {
 };
 
 export const getPrivacy = () => api<{ company: string; contact: string }>("GET", "/api/privacy");
+
+// ---- The MD adds the manager (no admin command needed) ----
+
+export interface MdManager {
+  id: number; name: string; status: "active" | "invited" | "expired"; label: string; invite_expires: string | null;
+}
+export const getMdManager = () => api<{ manager: MdManager | null }>("GET", "/api/md/manager");
+export const addMdManager = (name: string) => api<Invite>("POST", "/api/md/manager", { name });
+export const newManagerInvite = () => api<Invite>("POST", "/api/md/manager/new-invite");

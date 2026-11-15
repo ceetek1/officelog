@@ -6,10 +6,10 @@ import { initials } from "../../format";
 import { useSession } from "../../session";
 import { ChevronLeft, ClockIcon } from "../../ui/icons";
 
-// On phones the bottom bar has Today, Approvals, Activity and Usage; People opens from Today's rows.
+// On phones the bottom bar has the same pages with short names (People holds "Add Manager").
 const NAV = [
   { to: "/md", label: "Today", short: "Today" },
-  { to: "/md/people", label: "People", short: "", wideOnly: true },
+  { to: "/md/people", label: "People", short: "People" },
   { to: "/md/approvals", label: "Approvals", short: "Approvals" },
   { to: "/md/activity", label: "Activity log", short: "Activity" },
   { to: "/md/usage", label: "Usage", short: "Usage" },
@@ -29,7 +29,7 @@ export function MdShell({ title, actions, children, back, subtitle, eyebrow }: {
     try { await logout(); } finally { await refresh(); navigate("/md/login", { replace: true }); }
   }
 
-  const links = (phone: boolean) => NAV.filter((n) => !(phone && n.wideOnly)).map((n) => (
+  const links = (phone: boolean) => NAV.map((n) => (
     <NavLink key={n.to} to={n.to} end={n.to === "/md"}
       className={({ isActive }) => `md-nav-link${isActive ? " md-nav-active" : ""}`}>
       {phone ? n.short : n.label}

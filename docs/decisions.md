@@ -208,3 +208,12 @@ These are small choices the spec leaves open. They are listed so a reviewer sees
   MD.
 - **B23. Restoring a backup** is checked by copying the live database into a local scratch database
   (`pg_dump` / `pg_restore`, in `docs/deploy-railway.md`), so the check never overwrites live data.
+- **B24. The MD adds the manager in the app.** MD → People has a **Manager** card. With no active
+  manager it offers **Add Manager** (a name, then the one-time invite as a QR code, link and Copy,
+  48 hours). Once there is a manager it shows whether their phone is set up, the invite is waiting,
+  or it expired, and offers **New Invite Link**, which is a phone reset for the manager (their phone
+  and sessions stop working; asks first if a phone is set up). The server still allows exactly one
+  active manager (also enforced by the database). Both are in the activity log with the MD as the
+  actor ("Person added", "Phone reset", "Invite created"). So `railway ssh` and
+  `python -m app.admin create-manager` are no longer needed, though they still work. The MD's phone
+  bottom bar now has People too.
