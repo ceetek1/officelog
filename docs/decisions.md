@@ -170,7 +170,7 @@ These are small choices the spec leaves open. They are listed so a reviewer sees
 - **B16. Nobody resets or deactivates themselves on the screens.** The manager can't reset their own
   phone (they'd need it to do so) or deactivate themselves, and the manager can't be deactivated
   from the app (there must be exactly one). If the manager loses their phone, the developer runs
-  `python -m app.admin reset-phone --name "<name>"`, which is logged like a reset on the screen.
+  `python -m app.admin reset-phone --name "<name>"` (over `railway ssh`, use `/opt/venv/bin/python`), which is logged like a reset on the screen.
   Deactivating also revokes the person's phone, signs out every session and cancels open invites.
   There's no "reactivate" in the MVP: add the person again.
 - **B17. "New Invite Link" is a phone reset.** For someone whose invite expired or who has no phone

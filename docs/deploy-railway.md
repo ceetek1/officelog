@@ -67,35 +67,41 @@ railway link
 railway ssh
 ```
 
-You are now inside the running app. Create the MD (you'll be asked for a password twice; at least 10
-characters):
+The first time, `railway ssh` offers to register an SSH key with Railway (answer yes; if you have no
+key yet, make one with `ssh-keygen -t ed25519`), and asks you to trust `ssh.railway.com` (type
+`yes`). If this folder isn't linked, name the service instead:
+`railway ssh --project <project-id> --environment production --service officelog`.
+
+You are now inside the running app (`pwd` prints `/srv`). **Use `/opt/venv/bin/python`, not plain
+`python`**: an SSH session doesn't get the image's `PATH`, so plain `python` is the system Python,
+which has none of the app's libraries and fails with `No module named 'alembic'`.
+
+Create the MD (you'll be asked for a password twice; at least 10 characters):
 
 ```bash
-python -m app.admin create-md --name "Folake Adeyemi" --email folake@example.com
+/opt/venv/bin/python -m app.admin create-md --name "Folake Adeyemi" --email folake@example.com
 ```
 
 Create the manager. This prints an invite link that works once, for 48 hours, on the manager's own
 phone:
 
 ```bash
-python -m app.admin create-manager --name "Emeka Okonkwo"
+/opt/venv/bin/python -m app.admin create-manager --name "Emeka Okonkwo"
 ```
 
-Until the manager's People screen arrives (Step 5), add workers the same way. Each gets a one-time
-link to open on their own phone:
+After that, the manager adds workers and pairs the entrance TV from the app's **People** and
+**Entrance TV** screens. The same can be done from here if needed. Each worker gets a one-time link to
+open on their own phone; the TV link works once, for 24 hours, in the TV's web browser:
 
 ```bash
-python -m app.admin create-worker --name "Adaeze Obi"
+/opt/venv/bin/python -m app.admin create-worker --name "Adaeze Obi"
 ```
-
-And until the manager's TV screen arrives (Step 5), pair the entrance TV with a link that works once,
-for 24 hours. Open it in the TV's web browser:
 
 ```bash
-python -m app.admin create-tv-link
+/opt/venv/bin/python -m app.admin create-tv-link
 ```
 
-Type `exit` to leave. Other commands: `python -m app.admin --help`.
+Type `exit` to leave. Other commands: `/opt/venv/bin/python -m app.admin --help`.
 
 The MD signs in at `https://<your-address>/md/login`.
 
