@@ -7,6 +7,7 @@ import { useSession } from "../../session";
 import { Button } from "../../ui/Button";
 import { ChevronRight } from "../../ui/icons";
 import { decisionLine, StatePill, TypePill } from "../../ui/ReasonPills";
+import { refreshBadge } from "../../ui/TabBar";
 import { Sheet } from "../../ui/Sheets";
 import { ReasonCard } from "../manager/Approvals";
 import { MdShell } from "./Shell";
@@ -87,7 +88,7 @@ export function MdApprovals() {
   const [selected, setSelected] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const load = useCallback(async () => {
-    try { setData(await getApprovals()); setError(null); } catch (e) {
+    try { setData(await getApprovals()); setError(null); refreshBadge(); } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
     }
   }, []);
@@ -107,7 +108,12 @@ export function MdApprovals() {
   );
 
   return (
-    <MdShell title="Approvals" actions={tabs}>
+    <MdShell title="Approvals" actions={tabs}
+      phoneToolbar={<div className="segmented" role="tablist">
+        <button type="button" role="tab" className="segment" aria-selected={tab === "waiting"} onClick={() => setTab("waiting")}>
+          Waiting{data ? ` · ${data.waiting.length}` : ""}</button>
+        <button type="button" role="tab" className="segment" aria-selected={tab === "decided"} onClick={() => setTab("decided")}>Decided</button>
+      </div>}>
       {error && <p className="error-text" role="alert">{error}</p>}
       {data && tab === "waiting" && (
         <div className="md-cards">

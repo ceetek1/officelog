@@ -7,6 +7,7 @@ import { useSession } from "../../session";
 import { Button } from "../../ui/Button";
 import { Pill, type Tone } from "../../ui/Pill";
 import { MdShell } from "./Shell";
+import { PHONE, useMedia } from "../../ui/useMedia";
 
 const FILTERS = [
   ["all", "All"], ["resets", "Phone resets"], ["decisions", "Decisions"], ["failed", "Failed sign-ins"],
@@ -14,6 +15,7 @@ const FILTERS = [
 ];
 
 export function MdActivity() {
+  const phone = useMedia(PHONE);
   const { me } = useSession();
   const [filter, setFilter] = useState("all");
   const [entries, setEntries] = useState<ActivityEntry[]>([]);
@@ -34,15 +36,20 @@ export function MdActivity() {
   if (!me?.user || me.user.role !== "md") return <Navigate to="/md/login" replace />;
 
   return (
-    <MdShell title="Activity log">
-      <div className="md-filter-scroll">
+    <MdShell title={phone ? "Activity" : "Activity log"}
+      phoneActions={
+        <select className="select-chip" aria-label="Show" value={filter} onChange={(e) => setFilter(e.target.value)}>
+          {FILTERS.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
+        </select>
+      }>
+      {!phone && <div className="md-filter-scroll">
         <div className="segmented" role="tablist" style={{ minWidth: 640, maxWidth: 900 }}>
           {FILTERS.map(([id, label]) => (
             <button key={id} type="button" role="tab" className="segment" aria-selected={filter === id}
               onClick={() => setFilter(id)}>{label}</button>
           ))}
         </div>
-      </div>
+      </div>}
       {error && <p className="error-text" role="alert">{error}</p>}
       <div className="group">
         <div className="md-table-head md-activity-cols md-wide-only"><span>When</span><span>Who</span><span>Action</span><span>Details</span></div>

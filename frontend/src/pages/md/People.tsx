@@ -7,14 +7,17 @@ import { ChevronRight } from "../../ui/icons";
 import { Pill } from "../../ui/Pill";
 import { ManagerCard } from "./ManagerCard";
 import { MdShell } from "./Shell";
+import { PHONE, useMedia } from "../../ui/useMedia";
 
 export function MdPeople() {
+  const phone = useMedia(PHONE);
   const [people, setPeople] = useState<MdPerson[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [version, setVersion] = useState(0);
   useEffect(() => { getMdPeople().then((d) => setPeople(d.people)).catch((e) => setError(e.message)); }, [version]);
   return (
-    <MdShell title="People" subtitle="Open a person to see their days, month by month.">
+    <MdShell title="People" back={phone ? { to: "/md", label: "Today" } : undefined}
+      subtitle="The manager, and everyone's history month by month.">
       <ManagerCard onChanged={() => setVersion((v) => v + 1)} />
       {error && <p className="error-text" role="alert">{error}</p>}
       {people && (

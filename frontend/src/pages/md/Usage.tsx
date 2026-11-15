@@ -28,6 +28,16 @@ export function MdUsage() {
 
   return (
     <MdShell title="Usage" eyebrow={data ? `${data.label} · ${data.working_days} working days` : undefined}
+      phoneToolbar={data && (
+        <div className="group">
+          <label className="row"><span className="row-body"><span>From</span>
+            <input type="date" className="row-select" style={{ maxWidth: "none" }} value={data.from} max={data.to}
+              onChange={(e) => e.target.value && setRange(e.target.value, data.to)} /></span></label>
+          <label className="row"><span className="row-body"><span>To</span>
+            <input type="date" className="row-select" style={{ maxWidth: "none" }} value={data.to} min={data.from}
+              onChange={(e) => e.target.value && setRange(data.from, e.target.value)} /></span></label>
+        </div>
+      )}
       actions={data && (
         <div className="range-row">
           <label>From <input type="date" className="md-chip-input" value={data.from} max={data.to}

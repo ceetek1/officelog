@@ -7,6 +7,7 @@ import { Alert } from "../../ui/Alert";
 import { AppIcon } from "../../ui/AppIcon";
 import { Button } from "../../ui/Button";
 import { FieldRow, Group } from "../../ui/Grouped";
+import { MD_DEVICE_KEY } from "./Shell";
 
 export function MdSignIn() {
   const { me, setMe } = useSession();
@@ -57,6 +58,10 @@ export function MdSignIn() {
         <Button variant="plain" style={{ alignSelf: "center" }} onClick={() => setForgot(true)}>
           Forgot Password?
         </Button>
+        <Button variant="plain" style={{ alignSelf: "center", color: "var(--text-2)" }} onClick={() => {
+          try { localStorage.removeItem(MD_DEVICE_KEY); } catch { /* private mode */ }
+          navigate("/", { replace: true });
+        }}>Not the MD? Sign in with Face ID</Button>
       </form>
       {forgot && (
         <Alert
