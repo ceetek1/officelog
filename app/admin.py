@@ -112,21 +112,18 @@ def reset_md_password(email: str, password_stdin: bool) -> None:
 
 
 def create_manager(name: str) -> None:
-    name = name.strip()
-    if not name:
-        _fail("give a name")
-    with DbSession(app_engine()) as db:
-        user = User(name=name, role="manager")
-        db.add(user)
-        try:
-            db.flush()
-        except IntegrityError:
-            _fail("there is already an active manager (the MVP allows exactly one)")
-        activity.log(db, actor_id=None, action="user_add", entity="user", entity_id=user.id,
-                     after={"name": name, "role": "manager"})
-        link = create_invite(db, user.id, created_by=None)
-        db.commit()
-    print(f"Created manager {name}.")
+    """The MD can also add the manager on the MD People page."""
+    from app import people
+
+    try:
+        with DbSession(app_engine()) as db:
+            user, link = people.add_manager(db, name, None, SystemClock().now())
+            shown = user.name
+            db.commit()
+    except people.PeopleError as err:
+        _fail("there is already an active manager (the MVP allows exactly one)"
+              if err.code == "manager_exists" else err.message)
+    print(f"Created manager {shown}.")
     print("Open this link on the manager's own phone within 48 hours (it works once):")
     print(link)
 

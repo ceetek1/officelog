@@ -41,6 +41,10 @@ TABLE = [
      {"user_id": "{other}", "work_date": "2026-11-16", "clock_in": "07:00", "reason": "no_smartphone"}, {M, D}),
     ("Adds time from the paper sheet (form)", "GET", "/api/paper/day", None, {M, D}),
     ("Sees the usage numbers", "GET", "/api/usage", None, {D}),
+    # The MD adds the manager and can make a new invite for them (no SSH needed).
+    ("MD adds the manager (status)", "GET", "/api/md/manager", None, {D}),
+    ("MD adds the manager (add)", "POST", "/api/md/manager", {"name": "New Manager"}, {D}),
+    ("MD adds the manager (new invite)", "POST", "/api/md/manager/new-invite", None, {D}),
     # MD pages (spec §10): the Today board and history per person.
     ("Sees everyone's times (MD Today board)", "GET", "/api/md/today", None, {D}),
     ("Sees everyone's times (MD people)", "GET", "/api/md/people", None, {D}),

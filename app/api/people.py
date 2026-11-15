@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session as DbSession
 
 from app import people
@@ -15,7 +15,7 @@ from app.auth import CurrentUser, get_clock, require_roles
 from app.clock import Clock
 from app.config import Settings, get_settings
 from app.db import get_db
-from app.models import Device, Invite, User
+from app.models import User
 
 router = APIRouter(prefix="/api/people", tags=["people"])
 
@@ -41,24 +41,14 @@ def list_people(
     """Everyone who clocks in, with where their phone stands: Active, Invited, Expired or Off."""
     now = clock.now()
     users = db.scalars(select(User).where(User.role.in_(("worker", "manager")))).all()
-    with_phone = set(db.scalars(select(Device.user_id).where(Device.revoked_at.is_(None))))
-    latest_invite = dict(db.execute(
-        select(Invite.user_id, func.max(Invite.expires_at)).where(Invite.used_at.is_(None)).group_by(Invite.user_id)
-    ).all())
+    phones = people.phone_status(db, list(users), now)
     out = []
     for u in users:
-        if not u.active:
-            status, label = "off", "Off"
-        elif u.id in with_phone:
-            status, label = "active", "Active"
-        elif latest_invite.get(u.id) and latest_invite[u.id] > now:
-            status, label = "invited", "Invited"
-        else:
-            status, label = "expired", "No phone" if u.id not in latest_invite else "Expired"
-        out.append({"id": u.id, "name": u.name, "role": u.role, "status": status, "label": label,
+        ph = phones[u.id]
+        out.append({"id": u.id, "name": u.name, "role": u.role, "status": ph["status"], "label": ph["label"],
                     "is_me": u.id == cu.id,
-                    "invite_expires": _expires(latest_invite[u.id], settings.tz)
-                    if status == "invited" else None})
+                    "invite_expires": _expires(ph["invite_expires_at"], settings.tz)
+                    if ph["invite_expires_at"] else None})
     out.sort(key=lambda p: (p["status"] == "off", p["name"].lower()))
     return {"people": out, "active_count": sum(1 for p in out if p["status"] != "off")}
 

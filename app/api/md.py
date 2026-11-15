@@ -6,6 +6,7 @@ from __future__ import annotations
 from datetime import date, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session as DbSession, aliased
 
@@ -174,3 +175,83 @@ def usage(
         return usage_report(db, settings, a, b, now)
     except RangeError as err:
         raise HTTPException(status_code=400, detail={"code": "bad_range", "message": str(err)}) from None
+
+
+# ---- The manager (spec §2, decision D6): the MD adds them and can make a new invite ----
+
+def _manager_json(db: DbSession, now: datetime, tz) -> dict | None:
+    m = db.scalars(select(User).where(User.role == "manager", User.active.is_(True))).first()
+    if m is None:
+        return None
+    ph = people_mod.phone_status(db, [m], now)[m.id]
+    label = {"active": "Phone set up", "invited": "Invite waiting", "expired": "Invite expired"}[ph["status"]]
+    if ph["status"] == "expired" and ph["label"] == "No phone":
+        label = "No phone yet"
+    return {"id": m.id, "name": m.name, "status": ph["status"], "label": label,
+            "invite_expires": _expires_label(ph["invite_expires_at"], tz) if ph["invite_expires_at"] else None}
+
+
+def _expires_label(at: datetime, tz) -> str:
+    local = at.astimezone(tz)
+    return f"{local:%a} {local.day} {local:%b}, {local:%H:%M}"
+
+
+def _invite_reply(user: User, link: str, now: datetime, tz) -> dict:
+    return {"id": user.id, "name": user.name, "link": link,
+            "expires": _expires_label(people_mod.invite_expiry(now), tz)}
+
+
+def _people_http(err: people_mod.PeopleError) -> HTTPException:
+    return HTTPException(status_code=err.status, detail={"code": err.code, "message": err.message})
+
+
+@router.get("/md/manager")
+def md_manager(
+    cu: CurrentUser = Depends(MD),
+    db: DbSession = Depends(get_db),
+    clock: Clock = Depends(get_clock),
+    settings: Settings = Depends(get_settings),
+) -> dict:
+    return {"manager": _manager_json(db, clock.now(), settings.tz)}
+
+
+class NewManager(BaseModel):
+    name: str = Field(min_length=1, max_length=200)
+
+
+@router.post("/md/manager")
+def md_add_manager(
+    body: NewManager,
+    cu: CurrentUser = Depends(MD),
+    db: DbSession = Depends(get_db),
+    clock: Clock = Depends(get_clock),
+    settings: Settings = Depends(get_settings),
+) -> dict:
+    """Add the manager and get their one-time invite (48 h). Refused if there already is one."""
+    now = clock.now()
+    try:
+        user, link = people_mod.add_manager(db, body.name, cu.id, now)
+    except people_mod.PeopleError as err:
+        raise _people_http(err) from None
+    db.commit()
+    return _invite_reply(user, link, now, settings.tz)
+
+
+@router.post("/md/manager/new-invite")
+def md_manager_new_invite(
+    cu: CurrentUser = Depends(MD),
+    db: DbSession = Depends(get_db),
+    clock: Clock = Depends(get_clock),
+    settings: Settings = Depends(get_settings),
+) -> dict:
+    """A phone reset for the manager: their phone and sessions stop working, a new invite is made."""
+    now = clock.now()
+    m = db.scalars(select(User).where(User.role == "manager", User.active.is_(True))).first()
+    if m is None:
+        raise HTTPException(status_code=404, detail={"code": "no_manager", "message": "There's no manager yet. Add one first."})
+    try:
+        user, link = people_mod.reset_phone(db, m.id, cu.id, now)
+    except people_mod.PeopleError as err:
+        raise _people_http(err) from None
+    db.commit()
+    return _invite_reply(user, link, now, settings.tz)

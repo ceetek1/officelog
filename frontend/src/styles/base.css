@@ -391,7 +391,7 @@ h1, h2, h3, p { margin: 0; }
     display: flex; position: sticky; bottom: 0; background: #fff; border-top: 1px solid var(--border);
     padding: 6px 4px; padding-bottom: max(6px, env(safe-area-inset-bottom)); justify-content: space-around;
   }
-  .md-nav-phone .md-nav-link { padding: 0 10px; font-size: 15px; }
+  .md-nav-phone .md-nav-link { padding: 0 6px; font-size: 14px; }
   .md-wide-only { display: none !important; }
   .md-activity-cols { grid-template-columns: 1fr auto; grid-template-areas: "who action" "details details" "when when"; gap: 4px 12px; padding: 12px 16px; }
   .md-activity-cols > :nth-child(1) { grid-area: when; font-size: 13px; }
