@@ -34,6 +34,9 @@ class Settings(BaseSettings):
 
     # Shown on the sign-in screen, e.g. "Acme Ltd attendance".
     company_name: str = ""
+    # Who to contact about personal data, shown in the privacy notice (spec §7),
+    # e.g. "Folake Adeyemi, MD · folake@example.com · 0803 000 0000".
+    privacy_contact: str = ""
 
     # Public address of the site, e.g. https://attendance.example.com (used in invite links).
     base_url: str = "http://localhost:8000"

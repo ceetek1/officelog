@@ -7,6 +7,7 @@
     python -m app.admin create-worker --name "Adaeze Obi"
     python -m app.admin reset-phone --name "Emeka Okonkwo"
     python -m app.admin create-tv-link
+    python -m app.admin usage --from 2026-11-02 --to 2026-11-13
 
 Passwords are read with a hidden prompt, or from standard input with ``--password-stdin``.
 """
@@ -181,6 +182,57 @@ def create_tv_link() -> None:
     print(f"Or open {get_settings().base_url}/tv on the TV and type the code {code}")
 
 
+def _p(v) -> str:
+    return "--" if v is None else f"{v}%"
+
+
+def _s(ms) -> str:
+    return "--" if ms is None else f"{ms / 1000:.1f} s"
+
+
+def usage(start: str | None, end: str | None, now=None) -> None:
+    """Spec §9: the same numbers as the MD's Usage page, per working day and in total."""
+    from datetime import date
+
+    from app.usage import RangeError, usage_report
+
+    settings = get_settings()
+    now = now or SystemClock().now()
+    try:
+        b = date.fromisoformat(end) if end else now.astimezone(settings.tz).date()
+        a = date.fromisoformat(start) if start else b - timedelta(days=13)
+    except ValueError:
+        _fail("use dates like 2026-11-16")
+    try:
+        with DbSession(app_engine()) as db:
+            r = usage_report(db, settings, a, b, now)
+    except RangeError as err:
+        _fail(str(err))
+    t = r["totals"]
+    print(f"Usage {r['from']} to {r['to']} ({r['working_days']} working days)")
+    print()
+    head = f"{'Day':<12}{'Active':>7}{'Both scans':>12}{'First try':>11}{'Tap to receipt':>16}" \
+           f"{'Failed':>8}{'No clock-out':>14}{'Reasons':>9}{'Paper':>7}"
+    print(head)
+    print("-" * len(head))
+    for d in r["days"]:
+        print(f"{d['label']:<12}{d['active']:>7}{_p(d['both_pct']):>12}{_p(d['first_try_pct']):>11}"
+              f"{_s(d['tap_to_receipt_ms']):>16}{d['failed']:>8}{d['missing_clock_out']:>14}{d['reasons']:>9}{d['paper']:>7}")
+    print("-" * len(head))
+    print(f"{'Total':<12}{t['active']:>7}{_p(t['both_pct']):>12}{_p(t['first_try_pct']):>11}"
+          f"{_s(t['tap_to_receipt_ms']):>16}{t['failed']:>8}{t['missing_clock_out']:>14}{t['reasons']:>9}{t['paper']:>7}")
+    print()
+    print(f"Both scans: {t['both']} of {t['active']} person-days. First try: {t['first_try']} of {t['tries']}.")
+    print(f"Reasons: {t['reasons']} sent, {t['reasons_approved']} approved, {t['reasons_rejected']} rejected, "
+          f"{t['reasons_waiting']} waiting.")
+    if r["failures"]:
+        print("Failed scans by cause:")
+        for f in r["failures"]:
+            print(f"  {f['label']}: {f['count']}")
+    else:
+        print("No failed scans.")
+
+
 def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(prog="python -m app.admin")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -199,6 +251,9 @@ def main(argv: list[str] | None = None) -> None:
     rp = sub.add_parser("reset-phone", help="revoke a person's phone and print a new invite link")
     rp.add_argument("--name", required=True)
     sub.add_parser("create-tv-link", help="print a single-use link that pairs the entrance TV")
+    u = sub.add_parser("usage", help="print the usage numbers (default: the last 14 days)")
+    u.add_argument("--from", dest="start", help="first day, YYYY-MM-DD")
+    u.add_argument("--to", dest="end", help="last day, YYYY-MM-DD (default today)")
     a = p.parse_args(argv)
 
     if a.cmd == "migrate":
@@ -215,6 +270,8 @@ def main(argv: list[str] | None = None) -> None:
         reset_phone(a.name)
     elif a.cmd == "create-tv-link":
         create_tv_link()
+    elif a.cmd == "usage":
+        usage(a.start, a.end)
 
 
 if __name__ == "__main__":

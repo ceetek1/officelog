@@ -1,18 +1,24 @@
 // MD layout (Prototype B "MD · …" boards): top bar on wide screens, bottom tabs on phones.
 import { useEffect, useState, type ReactNode } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { getApprovals, logout } from "../../api";
 import { initials } from "../../format";
 import { useSession } from "../../session";
-import { ClockIcon } from "../../ui/icons";
+import { ChevronLeft, ClockIcon } from "../../ui/icons";
 
+// On phones the bottom bar has Today, Approvals, Activity and Usage; People opens from Today's rows.
 const NAV = [
-  { to: "/md", label: "Today" },
-  { to: "/md/approvals", label: "Approvals" },
-  { to: "/md/activity", label: "Activity log" },
+  { to: "/md", label: "Today", short: "Today" },
+  { to: "/md/people", label: "People", short: "", wideOnly: true },
+  { to: "/md/approvals", label: "Approvals", short: "Approvals" },
+  { to: "/md/activity", label: "Activity log", short: "Activity" },
+  { to: "/md/usage", label: "Usage", short: "Usage" },
 ];
 
-export function MdShell({ title, actions, children }: { title: string; actions?: ReactNode; children: ReactNode }) {
+export function MdShell({ title, actions, children, back, subtitle, eyebrow }: {
+  title: string; actions?: ReactNode; children: ReactNode; back?: { to: string; label: string };
+  subtitle?: string; eyebrow?: string;
+}) {
   const { me, refresh } = useSession();
   const navigate = useNavigate();
   const [waiting, setWaiting] = useState(0);
@@ -23,9 +29,10 @@ export function MdShell({ title, actions, children }: { title: string; actions?:
     try { await logout(); } finally { await refresh(); navigate("/md/login", { replace: true }); }
   }
 
-  const links = NAV.map((n) => (
-    <NavLink key={n.to} to={n.to} end className={({ isActive }) => `md-nav-link${isActive ? " md-nav-active" : ""}`}>
-      {n.label}
+  const links = (phone: boolean) => NAV.filter((n) => !(phone && n.wideOnly)).map((n) => (
+    <NavLink key={n.to} to={n.to} end={n.to === "/md"}
+      className={({ isActive }) => `md-nav-link${isActive ? " md-nav-active" : ""}`}>
+      {phone ? n.short : n.label}
       {n.to === "/md/approvals" && waiting > 0 && <span className="md-badge" aria-label={`${waiting} waiting`}>{waiting}</span>}
     </NavLink>
   ));
@@ -34,7 +41,7 @@ export function MdShell({ title, actions, children }: { title: string; actions?:
       <header className="md-top">
         <div className="md-top-inner">
           <span className="md-brand"><span className="md-brand-icon"><ClockIcon size={20} /></span>{me?.company || "Attendance"}</span>
-          <nav aria-label="MD" className="md-nav md-nav-wide">{links}</nav>
+          <nav aria-label="MD" className="md-nav md-nav-wide">{links(false)}</nav>
           <span className="md-user">
             <span className="person-initials" aria-hidden="true" style={{ margin: 0 }}>{initials(name)}</span>
             <span className="md-user-name">{name}</span>
@@ -44,12 +51,18 @@ export function MdShell({ title, actions, children }: { title: string; actions?:
       </header>
       <main className="md-main">
         <div className="md-title-row">
-          <h1 className="large-title">{title}</h1>
+          <div className="two-line" style={{ gap: 4 }}>
+            {back && <Link to={back.to} className="md-back"><ChevronLeft size={24} />{back.label}</Link>}
+            {eyebrow && <span className="eyebrow">{eyebrow}</span>}
+            <h1 className="large-title">{title}</h1>
+            {subtitle && <span className="subtitle">{subtitle}</span>}
+          </div>
           {actions}
         </div>
         {children}
+        <p className="md-footer"><Link to="/privacy">Privacy notice</Link></p>
       </main>
-      <nav aria-label="MD" className="md-nav md-nav-phone">{links}</nav>
+      <nav aria-label="MD" className="md-nav md-nav-phone">{links(true)}</nav>
     </div>
   );
 }

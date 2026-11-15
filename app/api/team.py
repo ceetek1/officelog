@@ -24,9 +24,13 @@ def team_today(
     clock: Clock = Depends(get_clock),
     settings: Settings = Depends(get_settings),
 ) -> dict:
-    tz = settings.tz
     now = clock.now()
-    wd = work_date(now, tz)
+    return team_day(db, settings, work_date(now, settings.tz), now)
+
+
+def team_day(db: DbSession, settings: Settings, wd, now) -> dict:
+    """Everyone who clocks in, on one day (the manager's Team today, the MD's Today board)."""
+    tz = settings.tz
     people = db.scalars(
         select(User).where(User.active.is_(True), User.role.in_(("worker", "manager"))).order_by(User.name)
     ).all()

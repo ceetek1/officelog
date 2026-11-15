@@ -31,6 +31,7 @@ Open the **officelog** service → **Variables**, and add:
 | `BASE_URL` | the site's address from step 3, e.g. `https://officelog-production.up.railway.app` (no trailing slash) |
 | `COOKIE_SECURE` | `true` |
 | `COMPANY_NAME` | your company's name, shown on the sign-in screen |
+| `PRIVACY_CONTACT` | who workers contact about their data, shown in the privacy notice, e.g. `Folake Adeyemi (MD), folake@example.com, 0803 000 0000` |
 | `TIMEZONE` | `Africa/Lagos` |
 | `SCHEDULE_JSON` | leave empty for the default schedule (see [decisions.md](decisions.md), D5), or paste your own |
 | `HOLIDAYS` | comma-separated dates, e.g. `2026-12-25,2026-12-26,2027-01-01` |
@@ -100,8 +101,38 @@ The MD signs in at `https://<your-address>/md/login`.
 
 ## Backups
 
-Railway's Postgres service has a **Backups** tab. Turn on scheduled backups there. Step 6 of the
-build asks you to restore one backup once, to be sure it works.
+Railway's Postgres service has a **Backups** tab. Turn on scheduled backups there. Railway can
+restore one of those backups over the live database; that replaces today's data, so only do it when
+something has really gone wrong.
+
+**Check once that a backup can be restored** (spec §11, step 6), without touching the live site.
+On your own computer, with Postgres 16 tools installed:
+
+1. In Railway, open the Postgres service → **Variables** and copy `DATABASE_PUBLIC_URL`.
+2. Make a copy of the live database into a file:
+
+   ```bash
+   pg_dump --format=custom --no-owner --file=officelog-backup.dump "<DATABASE_PUBLIC_URL>"
+   ```
+
+3. Restore it into a new, empty local database:
+
+   ```bash
+   createdb officelog_restore_check
+   ```
+
+   ```bash
+   pg_restore --no-owner --dbname=officelog_restore_check officelog-backup.dump
+   ```
+
+4. Look at it: the people and the last scans should be there.
+
+   ```bash
+   psql officelog_restore_check -c "select name, role, active from users" -c "select count(*), max(server_time) from scans"
+   ```
+
+5. Delete the file and the local database when you're done (`dropdb officelog_restore_check`): the
+   file holds everyone's attendance data.
 
 ## Important: choose the address before people register
 

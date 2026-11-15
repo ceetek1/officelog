@@ -40,8 +40,11 @@ TABLE = [
     ("Adds time from the paper sheet", "POST", "/api/paper",
      {"user_id": "{other}", "work_date": "2026-11-16", "clock_in": "07:00", "reason": "no_smartphone"}, {M, D}),
     ("Adds time from the paper sheet (form)", "GET", "/api/paper/day", None, {M, D}),
-    pytest.param("Sees the usage numbers", "GET", "/api/usage", None, {D},
-                 marks=pytest.mark.skip(reason="Usage arrives in Step 6")),
+    ("Sees the usage numbers", "GET", "/api/usage", None, {D}),
+    # MD pages (spec §10): the Today board and history per person.
+    ("Sees everyone's times (MD Today board)", "GET", "/api/md/today", None, {D}),
+    ("Sees everyone's times (MD people)", "GET", "/api/md/people", None, {D}),
+    ("Sees everyone's times (MD history per person)", "GET", "/api/md/people/{other}/history", None, {D}),
 ]
 
 

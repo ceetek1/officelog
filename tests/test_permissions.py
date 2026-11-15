@@ -22,6 +22,7 @@ PUBLIC = {
     ("POST", "/api/invites/{token}/register"),
     ("POST", "/api/kiosk/pair"),  # the single-use TV setup token is the credential
     ("GET", "/api/kiosk/code"),  # the TV's kiosk cookie is the credential
+    ("GET", "/api/privacy"),  # the privacy notice is read before signing up
 }
 
 

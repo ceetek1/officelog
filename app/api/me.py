@@ -65,8 +65,12 @@ def history(
     settings: Settings = Depends(get_settings),
 ) -> dict:
     """One month, newest day first: working days, plus any day with a clock-in."""
+    return month_history(db, settings, cu.user, month, clock.now())
+
+
+def month_history(db: DbSession, settings: Settings, user, month: str | None, now: datetime) -> dict:
+    """A person's month (their own History, and the MD's history per person)."""
     tz = settings.tz
-    now = clock.now()
     today_d = work_date(now, tz)
     if month is None:
         y, m = today_d.year, today_d.month
@@ -76,12 +80,12 @@ def history(
             raise HTTPException(status_code=400, detail={"code": "bad_month", "message": "Use a month like 2026-11."})
         y, m = int(mm.group(1)), int(mm.group(2))
     first = date(y, m, 1)
-    joined = work_date(cu.user.created_at, tz).replace(day=1)
+    joined = work_date(user.created_at, tz).replace(day=1)
     if first > today_d or first < joined:
         raise HTTPException(status_code=404, detail={"code": "no_month", "message": "Nothing for that month."})
     last = min(date(y, m, monthrange(y, m)[1]), today_d)
-    start = max(first, work_date(cu.user.created_at, tz))
-    views = load_views(db, settings, [cu.user], start, last, now)
+    start = max(first, work_date(user.created_at, tz))
+    views = load_views(db, settings, [user], start, last, now)
     days = [v for (_, d), v in sorted(views.items(), key=lambda kv: kv[0][1], reverse=True)
             if v.working_day or v.clock_in is not None]
     prev_first = (first - timedelta(days=1)).replace(day=1)
@@ -96,6 +100,7 @@ def history(
             "late": sum(1 for v in days if v.late_minutes is not None and not v.late_excused),
             "left_early": sum(1 for v in days if v.left_early_minutes is not None and not v.left_early_excused),
             "absent": sum(1 for v in days if v.absent and not v.absent_excused),
+            "excused": sum(1 for v in days if v.late_excused or v.absent_excused or v.left_early_excused),
             "worked_minutes": sum(v.worked_minutes or 0 for v in days),
         },
         "days": [view_json(v, tz) for v in days],

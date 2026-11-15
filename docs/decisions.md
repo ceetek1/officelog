@@ -180,3 +180,31 @@ These are small choices the spec leaves open. They are listed so a reviewer sees
 - **B18. TV status.** "Online" means the TV asked for a code in the last 2 minutes, otherwise
   "Offline". "Scans today" counts every QR and typed scan today, because the codes aren't tied to
   one TV.
+- **B19. How the usage numbers are counted** (spec §9; `app/rules/usage.py`, with tests).
+  - Only working days count (the schedule's days, minus holidays). A person counts as active on a
+    day if they'd been added by then and weren't deactivated yet (the date comes from the activity
+    log).
+  - **Both scans** counts clock-ins and clock-outs made with the app. Paper times and approved
+    claimed clock-outs don't count, because the question is whether people use the app. Paper times
+    are shown in their own column.
+  - **First try:** each person's attempts on a day are split into tries that end in a successful
+    scan; a try succeeds first time when its first attempt worked. An attempt with nobody signed in
+    can't be tied to a person, so it counts as its own failed try.
+  - **Tap to receipt** is the median time the phone measured from tapping the button to the receipt.
+  - Totals are pooled over the days (a busy day weighs more). The reasons total includes reasons
+    sent on days off; the per-day rows show working days only.
+- **B20. The MD's Today board shows any earlier day** (date picker), not just today. For an earlier
+  day the cards show On time, Late, Excused and Absent; for today, Not in yet and Reasons waiting.
+  The manager's reasons waiting for the MD can be decided right there, and the Entrance TV's status
+  is shown. Rows open the person's history.
+- **B21. History per person** is a month at a time (like the worker's own History) with a "Reason or
+  decision" column: "Late · approved by Emeka", "Claimed 17:40 · approved by Emeka", "Late · reason
+  waiting", "No reason", and paper times with who added them. The MD's top bar has a People page
+  listing everyone, deactivated people too (their history is kept). On a phone the MD's bottom bar
+  has Today, Approvals, Activity and Usage, as in the design; people open from Today.
+- **B22. The privacy notice** is a page anyone can open at `/privacy`, as well as the sheet shown
+  before registering a phone. The phone app's account menu and the MD's pages link to it. The
+  contact person comes from `PRIVACY_CONTACT`; without it the notice says to ask the manager or the
+  MD.
+- **B23. Restoring a backup** is checked by copying the live database into a local scratch database
+  (`pg_dump` / `pg_restore`, in `docs/deploy-railway.md`), so the check never overwrites live data.

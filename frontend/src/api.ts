@@ -193,3 +193,41 @@ export const addPaperTime = (user_id: number, work_date: string, clock_in: strin
   reason: PaperReason) =>
   api<{ name: string; added: { kind: Kind; time: string }[]; reason_label: string }>("POST", "/api/paper",
     { user_id, work_date, clock_in, clock_out, reason });
+
+// ---- MD pages (spec §9, §10) ----
+
+export interface MdToday extends TeamToday {
+  is_today: boolean; short_date: string; active_people: number;
+  tv: { status: "online" | "offline"; label: string; last_seen: string | null; scans_today: number } | null;
+}
+export interface MdPerson { id: number; name: string; role: Role; active: boolean; phone_registered: string | null }
+export interface PersonHistory extends History {
+  summary: History["summary"] & { excused: number };
+  days: (Day & { note: string })[];
+  person: MdPerson;
+}
+export const getMdToday = (date?: string) =>
+  api<MdToday>("GET", "/api/md/today" + (date ? `?date=${encodeURIComponent(date)}` : ""));
+export const getMdPeople = () => api<{ people: MdPerson[] }>("GET", "/api/md/people");
+export const getPersonHistory = (id: number, month?: string) =>
+  api<PersonHistory>("GET", `/api/md/people/${id}/history` + (month ? `?month=${encodeURIComponent(month)}` : ""));
+
+export interface UsageDay {
+  active: number; both: number; both_pct: number | null; first_try: number; tries: number;
+  first_try_pct: number | null; tap_to_receipt_ms: number | null; failed: number;
+  missing_clock_out: number; reasons: number; paper: number;
+}
+export interface Usage {
+  from: string; to: string; label: string; working_days: number;
+  totals: UsageDay & { reasons_approved: number; reasons_rejected: number; reasons_waiting: number };
+  failures: { code: string; label: string; count: number }[];
+  days: (UsageDay & { date: string; label: string })[];
+}
+export const getUsage = (from?: string, to?: string) => {
+  const q = new URLSearchParams();
+  if (from) q.set("from", from);
+  if (to) q.set("to", to);
+  return api<Usage>("GET", `/api/usage${q.toString() ? `?${q}` : ""}`);
+};
+
+export const getPrivacy = () => api<{ company: string; contact: string }>("GET", "/api/privacy");
