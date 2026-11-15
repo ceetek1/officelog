@@ -129,8 +129,9 @@ These are small choices the spec leaves open. They are listed so a reviewer sees
   scanned code (the server checks it and notes the time), then Face ID's answer (the server records
   the scan with the noted time). So a slow Face ID prompt can't make someone late or let a stale
   code through.
-- **B6. Until Step 5's screens exist,** workers are added and the TV is paired with admin commands
-  (`create-worker`, `create-tv-link`). Pairing links work once, for 24 hours.
+- **B6. Admin commands for people and the TV.** Before Step 5's screens existed, workers were added
+  and the TV paired with `create-worker` and `create-tv-link`. Both still work and do exactly what the
+  manager's screens do (same activity log entries). TV setup codes work once, for 24 hours.
 - **B7. Old TV browsers.** The build adds a second, "legacy" bundle with polyfills for browsers too
   old for modern JavaScript, so older Samsung and LG TVs can run the board. The TV layout uses only
   flexbox without `gap`, which old browsers lack.
@@ -151,3 +152,31 @@ These are small choices the spec leaves open. They are listed so a reviewer sees
   is refused. The MD decides the manager's reasons and may also decide workers' waiting ones. Only
   the MD can change a decision, through **Override**, which adds a new decision (the old one stays,
   and the newest counts). Every decision and override is in the activity log with before and after.
+- **B13. The TV is set up with a short typed code.** The design's TV screen says "Scan TV Code",
+  but a TV has no camera, and typing a long link with a TV remote is painful. So the manager taps
+  **Get a Setup Code** (People → Entrance TV) and gets a 10-character code like `HGDNM-46K4P`
+  (about 50 bits, no look-alike letters, single use, 24 hours, only its hash is stored). On the TV's
+  browser they open `/tv` and type it; upper or lower case and the dash don't matter. The full link
+  (`/tv/pair/<code>`) and a QR code are also offered, for a tablet with a camera. A "TV shows a code,
+  phone scans it" flow could replace this later without changing the data.
+- **B14. Add person asks for the name only.** The design's Add person sheet also has a phone
+  number, but the privacy notice (§7) promises we collect nothing beyond name, clock times, the
+  passkey and scan IP addresses, so the number isn't asked for. The invite is shared with the
+  phone's own share sheet, Copy Link, or by showing the QR code.
+- **B15. Time from paper** can be added for today and up to **7 days back**, for clock-in, clock-out
+  or both at once. Times already recorded are shown and can't be replaced; the same rules as
+  scanning apply (one of each per day, a clock-out after a clock-in, nothing in the future). The
+  MD's Today page has the same **Time from Paper** button as the manager's Team page.
+- **B16. Nobody resets or deactivates themselves on the screens.** The manager can't reset their own
+  phone (they'd need it to do so) or deactivate themselves, and the manager can't be deactivated
+  from the app (there must be exactly one). If the manager loses their phone, the developer runs
+  `python -m app.admin reset-phone --name "<name>"`, which is logged like a reset on the screen.
+  Deactivating also revokes the person's phone, signs out every session and cancels open invites.
+  There's no "reactivate" in the MVP: add the person again.
+- **B17. "New Invite Link" is a phone reset.** For someone whose invite expired or who has no phone
+  yet, the People screen offers "New Invite Link". It uses the same action as Reset Phone (old
+  invites stop working, a new one is made) and shows in the activity log as "Phone reset", so the MD
+  sees every new invite for an existing person.
+- **B18. TV status.** "Online" means the TV asked for a code in the last 2 minutes, otherwise
+  "Offline". "Scans today" counts every QR and typed scan today, because the codes aren't tied to
+  one TV.

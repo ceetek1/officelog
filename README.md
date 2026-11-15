@@ -8,12 +8,14 @@ sees how much the system is actually used.
 - Where the build differs from the spec, and why: [`docs/decisions.md`](docs/decisions.md)
 - Deploying: [`docs/deploy-railway.md`](docs/deploy-railway.md)
 
-**Status:** Steps 1–4 of 6. Done: database, admin commands, MD sign-in, the entrance TV, invites
+**Status:** Steps 1–5 of 6. Done: database, admin commands, MD sign-in, the entrance TV, invites
 with Face ID, clocking in and out with receipts, the attendance rules, Today, History, the
-manager's Team today, reasons, approvals, the MD's override and the activity log. Next: People,
-phone reset, TV setup and time from paper (Step 5).
+manager's Team today, reasons, approvals, the MD's override, the activity log, People (add a
+worker, reset a lost phone, deactivate), TV setup and removal, and time from the paper sheet.
+Next: the MD's Today board, history per person, Usage, and the privacy notice page (Step 6).
 
-Pages: `/` phone app · `/invite/<token>` new phone · `/tv` entrance TV · `/md/login` MD
+Pages: `/` phone app (manager: `/team`, `/approvals`, `/people`, `/people/tv`) ·
+`/invite/<token>` new phone · `/tv` entrance TV (`/tv/pair/<code>` sets it up) · `/md/login` MD
 (`/md`, `/md/approvals`, `/md/activity`).
 
 Phones need **HTTPS** for the camera and Face ID, so real-phone testing happens on the Railway
@@ -94,8 +96,9 @@ uv run python -m app.admin --help
 | `create-md --name --email` | Creates the MD (asks for a password). |
 | `reset-md-password --email` | Sets a new password for the MD. |
 | `create-manager --name` | Creates the manager and prints their one-time invite link. |
-| `create-worker --name` | Creates a worker and prints their one-time invite link (until Step 5's People screen). |
-| `create-tv-link` | Prints a one-time link that pairs the entrance TV (until Step 5's TV screen). |
+| `create-worker --name` | Creates a worker and prints their one-time invite link (the manager normally uses People). |
+| `reset-phone --name` | Revokes a person's phone and sessions and prints a new invite link. For the manager's own lost phone. |
+| `create-tv-link` | Prints a one-time TV setup link and code (the manager normally uses People → Entrance TV). |
 
 ## Environment variables
 

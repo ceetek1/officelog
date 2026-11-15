@@ -5,6 +5,7 @@
     python -m app.admin reset-md-password --email folake@example.com
     python -m app.admin create-manager --name "Emeka Okonkwo"
     python -m app.admin create-worker --name "Adaeze Obi"
+    python -m app.admin reset-phone --name "Emeka Okonkwo"
     python -m app.admin create-tv-link
 
 Passwords are read with a hidden prompt, or from standard input with ``--password-stdin``.
@@ -28,7 +29,7 @@ from app.clock import SystemClock
 from app.config import get_settings
 from app.db import app_engine, owner_engine
 from app.dbrole import ensure_app_role
-from app.models import Invite, Kiosk, User
+from app.models import Invite, User
 from app.security import hash_password, new_token, token_hash
 
 INVITE_LIFETIME = timedelta(hours=48)
@@ -64,10 +65,10 @@ def _read_password(from_stdin: bool) -> str:
     return pw
 
 
-def create_invite(db: DbSession, user_id: int, created_by: int | None) -> str:
+def create_invite(db: DbSession, user_id: int, created_by: int | None, now=None) -> str:
     """Make a single-use invite (48 h). Returns the link; only the token's hash is stored."""
     settings = get_settings()
-    now = SystemClock().now()
+    now = now or SystemClock().now()
     token = new_token()
     inv = Invite(user_id=user_id, token_hash=token_hash(token), created_by=created_by,
                  created_at=now, expires_at=now + INVITE_LIFETIME)
@@ -130,36 +131,54 @@ def create_manager(name: str) -> None:
 
 
 def create_worker(name: str) -> None:
-    """Until the manager's People screen exists (Step 5), workers can be added here."""
-    name = name.strip()
-    if not name:
-        _fail("give a name")
-    with DbSession(app_engine()) as db:
-        user = User(name=name, role="worker")
-        db.add(user)
-        db.flush()
-        activity.log(db, actor_id=None, action="user_add", entity="user", entity_id=user.id,
-                     after={"name": name, "role": "worker"})
-        link = create_invite(db, user.id, created_by=None)
-        db.commit()
-    print(f"Created worker {name}.")
+    """The manager normally adds workers on the People screen; this does the same from here."""
+    from app import people
+
+    try:
+        with DbSession(app_engine()) as db:
+            user, link = people.add_worker(db, name, None, SystemClock().now())
+            shown = user.name
+            db.commit()
+    except people.PeopleError as err:
+        _fail(err.message)
+    print(f"Created worker {shown}.")
     print("Open this link on their own phone within 48 hours (it works once):")
     print(link)
 
 
-def create_tv_link() -> None:
-    """A single-use link that pairs the entrance TV (24 hours). The manager's TV screen comes in Step 5."""
-    now = SystemClock().now()
-    token = new_token()
+def reset_phone(name: str) -> None:
+    """For when the manager loses their own phone (the People screen can't reset yourself)."""
+    from app import people
+
+    name = name.strip()
     with DbSession(app_engine()) as db:
-        kiosk = Kiosk(setup_token_hash=token_hash(token), setup_expires_at=now + TV_LINK_LIFETIME,
-                      created_at=now)
-        db.add(kiosk)
-        db.flush()
-        activity.log(db, actor_id=None, action="kiosk_create", entity="kiosk", entity_id=kiosk.id)
+        found = db.scalars(select(User).where(func.lower(User.name) == name.lower(), User.active.is_(True),
+                                              User.role.in_(("worker", "manager")))).all()
+        if not found:
+            _fail(f"no active worker or manager called {name!r}")
+        if len(found) > 1:
+            _fail(f"more than one person is called {name!r}; use the People screen")
+        try:
+            user, link = people.reset_phone(db, found[0].id, None, SystemClock().now())
+        except people.PeopleError as err:
+            _fail(err.message)
+        shown = user.name
+        db.commit()
+    print(f"Reset {shown}'s phone. Their old phone is signed out and can't clock in.")
+    print("Open this link on their new phone within 48 hours (it works once):")
+    print(link)
+
+
+def create_tv_link() -> None:
+    """A single-use link that pairs the entrance TV (24 hours); the manager can also make one."""
+    from app import people
+
+    with DbSession(app_engine()) as db:
+        _, code, link = people.create_tv_link(db, None, SystemClock().now())
         db.commit()
     print("Open this link once in the TV's web browser within 24 hours:")
-    print(f"{get_settings().base_url}/tv/pair/{token}")
+    print(link)
+    print(f"Or open {get_settings().base_url}/tv on the TV and type the code {code}")
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -177,6 +196,8 @@ def main(argv: list[str] | None = None) -> None:
     m.add_argument("--name", required=True)
     w = sub.add_parser("create-worker", help="create a worker and print their invite link")
     w.add_argument("--name", required=True)
+    rp = sub.add_parser("reset-phone", help="revoke a person's phone and print a new invite link")
+    rp.add_argument("--name", required=True)
     sub.add_parser("create-tv-link", help="print a single-use link that pairs the entrance TV")
     a = p.parse_args(argv)
 
@@ -190,6 +211,8 @@ def main(argv: list[str] | None = None) -> None:
         create_manager(a.name)
     elif a.cmd == "create-worker":
         create_worker(a.name)
+    elif a.cmd == "reset-phone":
+        reset_phone(a.name)
     elif a.cmd == "create-tv-link":
         create_tv_link()
 

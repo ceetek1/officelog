@@ -71,7 +71,11 @@ def describe(row: ActivityLog, names: dict[int, str]) -> str:
     if row.action in ("device_register", "invite_create", "device_reset", "user_deactivate"):
         return names.get(a.get("user_id"), "") or ""
     if row.action == "paper_time":
-        return f"{who or ''} · {a.get('kind', '')} {a.get('time', '')} · {a.get('reason_label', '')}".strip(" ·")
+        kind = {"in": "Clock-in", "out": "Clock-out"}.get(a.get("kind"), "")
+        return " · ".join(x for x in (who, f"{kind} {a.get('time', '')}".strip(), _day(a.get("work_date")),
+                                      a.get("reason_label")) if x)
+    if row.action in ("kiosk_create", "kiosk_pair", "kiosk_revoke"):
+        return f"TV {row.entity_id}" if row.entity_id else "TV"
     return ""
 
 

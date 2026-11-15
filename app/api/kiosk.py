@@ -20,6 +20,7 @@ from app.clock import Clock
 from app.config import Settings, get_settings
 from app.db import get_db
 from app.models import Kiosk, Scan, User
+from app.people import normalize_tv_code
 from app.security import new_token, token_hash
 from app.timeutil import first_name, greeting, local_hhmm, short_date, work_date
 
@@ -41,7 +42,7 @@ def _set_cookie(response: Response, token: str, settings: Settings) -> None:
 
 
 class Pair(BaseModel):
-    token: str = Field(min_length=10, max_length=200)
+    token: str = Field(min_length=1, max_length=200)
 
 
 @router.post("/pair")
@@ -50,13 +51,16 @@ def pair(
     clock: Clock = Depends(get_clock), settings: Settings = Depends(get_settings),
 ) -> dict:
     now = clock.now()
+    # The manager's screen shows a short code to type on the TV ("ABCDE-FGHJK"); older links
+    # from the admin command carry a long token. Both are single use.
+    hashes = {token_hash(body.token), token_hash(normalize_tv_code(body.token))}
     kiosk = db.scalars(
-        select(Kiosk).where(Kiosk.setup_token_hash == token_hash(body.token)).with_for_update()
+        select(Kiosk).where(Kiosk.setup_token_hash.in_(hashes)).with_for_update()
     ).first()
     if kiosk is None or kiosk.paired_at is not None or kiosk.revoked_at is not None or kiosk.setup_expires_at <= now:
         raise HTTPException(status_code=410, detail={
             "code": "pair_invalid",
-            "message": "This TV setup link has expired or was already used. Ask the manager for a new one."})
+            "message": "That TV setup code has expired, was already used, or is mistyped. Ask the manager for a new one."})
     token = new_token()
     kiosk.token_hash = token_hash(token)
     kiosk.paired_at = now

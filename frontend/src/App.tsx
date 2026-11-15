@@ -15,6 +15,8 @@ const Reasons = lazy(() => import("./pages/phone/Reasons").then((m) => ({ defaul
 const MdApprovals = lazy(() => import("./pages/md/Approvals").then((m) => ({ default: m.MdApprovals })));
 const MdActivity = lazy(() => import("./pages/md/Activity").then((m) => ({ default: m.MdActivity })));
 const ManagerApprovals = lazy(() => import("./pages/manager/Approvals").then((m) => ({ default: m.Approvals })));
+const People = lazy(() => import("./pages/manager/People").then((m) => ({ default: m.People })));
+const TvSetup = lazy(() => import("./pages/manager/TvSetup").then((m) => ({ default: m.TvSetup })));
 const Tv = lazy(() => import("./pages/tv/Tv").then((m) => ({ default: m.Tv })));
 const TvPair = lazy(() => import("./pages/tv/Tv").then((m) => ({ default: m.TvPair })));
 
@@ -78,6 +80,8 @@ export function App() {
         <Route path="/reasons" element={<ClocksIn>{(role) => <Reasons role={role} />}</ClocksIn>} />
         <Route path="/team" element={<ManagerOnly><Team /></ManagerOnly>} />
         <Route path="/approvals" element={<ManagerOnly><ManagerApprovals /></ManagerOnly>} />
+        <Route path="/people" element={<ManagerOnly><People /></ManagerOnly>} />
+        <Route path="/people/tv" element={<ManagerOnly><TvSetup /></ManagerOnly>} />
         <Route path="/invite/:token" element={<Welcome />} />
         <Route path="/md/login" element={<MdSignIn />} />
         <Route path="/md" element={<MdHome />} />

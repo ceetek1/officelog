@@ -117,16 +117,7 @@ export function Tv() {
     return () => { alive = false; clearTimeout(timer); clearInterval(watchdog); };
   }, []);
 
-  if (unpaired) {
-    return (
-      <Stage>
-        <div className="tv-message">
-          <h1>This TV isn't set up</h1>
-          <p>Ask the manager for the TV setup link, and open it in this TV's web browser.</p>
-        </div>
-      </Stage>
-    );
-  }
+  if (unpaired) return <TvSetupCode />;
   if (!data) return <Stage>{null}</Stage>;
 
   const [latest, ...rest] = data.recent;
@@ -190,6 +181,37 @@ export function Tv() {
           )}
         </section>
       </div>
+    </Stage>
+  );
+}
+
+/** The TV isn't paired: type the setup code from the manager's phone (People → Entrance TV). */
+function TvSetupCode() {
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  function submit(e: { preventDefault: () => void }) {
+    e.preventDefault();
+    if (!code.trim() || busy) return;
+    setBusy(true);
+    setError(null);
+    kioskPair(code.trim())
+      .then(() => window.location.reload())
+      .catch((err) => { setError(err instanceof Error ? err.message : "Something went wrong."); setBusy(false); });
+  }
+  return (
+    <Stage>
+      <form className="tv-message" onSubmit={submit}>
+        <h1>Set up this TV</h1>
+        <p>On the manager's phone: People, then Entrance TV, then Get a Setup Code. Type the code here.</p>
+        <div className="tv-setup-row">
+          <input className="tv-setup-input" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())}
+            placeholder="ABCDE-FGHJK" aria-label="Setup code" autoComplete="off" autoCapitalize="characters"
+            spellCheck={false} maxLength={20} autoFocus />
+          <button type="submit" className="tv-setup-button" disabled={busy || !code.trim()}>{busy ? "Setting up…" : "Set Up"}</button>
+        </div>
+        {error && <p className="tv-setup-error" role="alert">{error}</p>}
+      </form>
     </Stage>
   );
 }

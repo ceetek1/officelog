@@ -27,6 +27,7 @@ class As:
         self.client, self.token, self.csrf = client, *session_for(uid)
 
     def _go(self, method, url, **kw):
+        self.client.cookies.delete("att_session")  # a phone sign-in may have set one for another domain
         self.client.cookies.set("att_session", self.token)
         return self.client.request(method, url, headers={"X-CSRF-Token": self.csrf}, **kw)
 

@@ -154,3 +154,42 @@ export interface ActivityEntry { id: number; when: string; at: string; who: stri
 export const getActivity = (filter: string, before?: number) =>
   api<{ entries: ActivityEntry[]; more: boolean }>("GET",
     `/api/activity?filter=${encodeURIComponent(filter)}${before ? `&before=${before}` : ""}`);
+
+// ---- People and the entrance TV (manager; spec §4.4) ----
+
+export type PersonStatus = "active" | "invited" | "expired" | "off";
+export interface Person {
+  id: number; name: string; role: Role; status: PersonStatus; label: string; is_me: boolean;
+  invite_expires: string | null;
+}
+export interface Invite { id: number; name: string; link: string; expires: string }
+export const getPeople = () => api<{ people: Person[]; active_count: number }>("GET", "/api/people");
+export const addPerson = (name: string) => api<Invite>("POST", "/api/people", { name });
+export const resetPhone = (id: number) => api<Invite>("POST", `/api/people/${id}/reset-phone`);
+export const deactivatePerson = (id: number) => api<{ id: number; active: false }>("POST", `/api/people/${id}/deactivate`);
+
+export interface Tv {
+  id: number; status: "online" | "offline" | "waiting"; label: string;
+  set_up: string | null; last_seen: string | null; link_expires: string | null;
+}
+export interface TvLink { id: number; code: string; link: string; tv_page: string; expires: string }
+export const getTvs = () => api<{ tvs: Tv[]; scans_today: number }>("GET", "/api/kiosks");
+export const createTvLink = () => api<TvLink>("POST", "/api/kiosks");
+export const removeTv = (id: number) => api<{ ok: true }>("POST", `/api/kiosks/${id}/revoke`);
+
+// ---- Time from the paper sheet (decision D3; manager and MD) ----
+
+export type PaperReason = "tv_not_working" | "no_smartphone" | "phone_dead_or_forgotten";
+export interface PaperTimeEntry { time: string; source: string; entered_by: string | null }
+export interface PaperDay {
+  date: string; label: string;
+  days: { date: string; label: string }[];
+  reasons: { value: PaperReason; label: string }[];
+  people: { user_id: number; name: string; is_me: boolean; clock_in: PaperTimeEntry | null; clock_out: PaperTimeEntry | null }[];
+}
+export const getPaperDay = (date?: string) =>
+  api<PaperDay>("GET", "/api/paper/day" + (date ? `?date=${encodeURIComponent(date)}` : ""));
+export const addPaperTime = (user_id: number, work_date: string, clock_in: string | null, clock_out: string | null,
+  reason: PaperReason) =>
+  api<{ name: string; added: { kind: Kind; time: string }[]; reason_label: string }>("POST", "/api/paper",
+    { user_id, work_date, clock_in, clock_out, reason });
