@@ -8,11 +8,13 @@ sees how much the system is actually used.
 - Where the build differs from the spec, and why: [`docs/decisions.md`](docs/decisions.md)
 - Deploying: [`docs/deploy-railway.md`](docs/deploy-railway.md)
 
-**Status:** Steps 1–3 of 6. Done: database, admin commands, MD sign-in, the entrance TV, invites
-with Face ID, clocking in and out with receipts, the attendance rules, Today, History and the
-manager's Team today. Next: reasons, approvals and the activity log (Step 4).
+**Status:** Steps 1–4 of 6. Done: database, admin commands, MD sign-in, the entrance TV, invites
+with Face ID, clocking in and out with receipts, the attendance rules, Today, History, the
+manager's Team today, reasons, approvals, the MD's override and the activity log. Next: People,
+phone reset, TV setup and time from paper (Step 5).
 
-Pages: `/` phone app · `/invite/<token>` new phone · `/tv` entrance TV · `/md/login` MD.
+Pages: `/` phone app · `/invite/<token>` new phone · `/tv` entrance TV · `/md/login` MD
+(`/md`, `/md/approvals`, `/md/activity`).
 
 Phones need **HTTPS** for the camera and Face ID, so real-phone testing happens on the Railway
 site (or another HTTPS address), not on `http://localhost` from another device.

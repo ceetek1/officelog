@@ -143,3 +143,11 @@ These are small choices the spec leaves open. They are listed so a reviewer sees
   finished. Left early is rounded up to whole minutes (16:59:30 is 1 min early).
 - **B10. The manager's own history** is a "My History" row on their Me tab, because their tab bar
   (Me, Team, Approvals, People) has no History tab in the design.
+- **B11. A reason must match the day.** A late reason needs a late clock-in, left early needs an
+  early clock-out, missed clock-out needs a clock-in with no clock-out, and absent needs a working
+  day with no clock-in (it may be sent ahead, on the morning itself). This stops reasons for things
+  that didn't happen.
+- **B12. Who decides.** The manager decides workers' reasons once; a second decision by the manager
+  is refused. The MD decides the manager's reasons and may also decide workers' waiting ones. Only
+  the MD can change a decision, through **Override**, which adds a new decision (the old one stays,
+  and the newest counts). Every decision and override is in the activity log with before and after.

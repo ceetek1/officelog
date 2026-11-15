@@ -2,7 +2,7 @@
 // Prototype B boards "5 · Scan TV code", "6 · Receipt".
 import QrScanner from "qr-scanner";
 import { useEffect, useRef, useState } from "react";
-import { ApiError, clockFinish, clockStart, type Challenge, type Kind, type Method, type Receipt } from "../../api";
+import { ApiError, clockFinish, clockStart, type Challenge, type Kind, type Method, type ReasonType, type Receipt } from "../../api";
 import { faceIdConfirm, FaceIdCancelled } from "../../faceid";
 import { worked } from "../../format";
 import { Alert, type AlertAction } from "../../ui/Alert";
@@ -13,9 +13,9 @@ import { Sheet } from "../../ui/Sheets";
 
 type Stage = "scan" | "typing" | "checking" | "faceid" | "tap" | "receipt";
 
-interface Props { kind: Kind; confirm: boolean; t0: number; onClose: () => void }
+interface Props { kind: Kind; confirm: boolean; t0: number; onClose: () => void; onAddReason: (t: ReasonType) => void }
 
-export function ClockFlow({ kind, confirm: confirmed, t0, onClose }: Props) {
+export function ClockFlow({ kind, confirm: confirmed, t0, onClose, onAddReason }: Props) {
   const [stage, setStage] = useState<Stage>("scan");
   const [message, setMessage] = useState<string | null>(null);
   const [typedError, setTypedError] = useState<string | null>(null);
@@ -121,7 +121,7 @@ export function ClockFlow({ kind, confirm: confirmed, t0, onClose }: Props) {
     if (next.length === 6) void submit("typed", next);
   }
 
-  if (stage === "receipt" && receipt) return <ReceiptScreen r={receipt} onDone={onClose} />;
+  if (stage === "receipt" && receipt) return <ReceiptScreen r={receipt} onDone={onClose} onAddReason={onAddReason} />;
 
   return (
     <div className="scanner">
@@ -192,7 +192,9 @@ export function ClockFlow({ kind, confirm: confirmed, t0, onClose }: Props) {
   );
 }
 
-function ReceiptScreen({ r, onDone }: { r: Receipt; onDone: () => void }) {
+function ReceiptScreen({ r, onDone, onAddReason }: { r: Receipt; onDone: () => void; onAddReason: (t: ReasonType) => void }) {
+  const needs: ReasonType | null = r.kind === "in" && r.late_minutes !== null ? "late"
+    : r.kind === "out" && r.left_early_minutes !== null ? "left_early" : null;
   return (
     <div className="scanner" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <main className="center-screen" style={{ padding: "0 24px", gap: 16 }}>
@@ -207,7 +209,8 @@ function ReceiptScreen({ r, onDone }: { r: Receipt; onDone: () => void }) {
         <span className="status-note">{r.date}</span>
       </main>
       <footer className="phone-footer" style={{ width: "100%", maxWidth: 520, margin: "0 auto" }}>
-        <Button onClick={onDone} autoFocus>Done</Button>
+        {needs && <Button onClick={() => onAddReason(needs)}>Add a Reason</Button>}
+        <Button variant={needs ? "secondary" : "primary"} onClick={onDone} autoFocus={!needs}>Done</Button>
       </footer>
     </div>
   );

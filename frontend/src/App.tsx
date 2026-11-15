@@ -11,6 +11,10 @@ import { Button } from "./ui/Button";
 const Today = lazy(() => import("./pages/phone/Today").then((m) => ({ default: m.Today })));
 const History = lazy(() => import("./pages/phone/History").then((m) => ({ default: m.History })));
 const Team = lazy(() => import("./pages/manager/Team").then((m) => ({ default: m.Team })));
+const Reasons = lazy(() => import("./pages/phone/Reasons").then((m) => ({ default: m.Reasons })));
+const MdApprovals = lazy(() => import("./pages/md/Approvals").then((m) => ({ default: m.MdApprovals })));
+const MdActivity = lazy(() => import("./pages/md/Activity").then((m) => ({ default: m.MdActivity })));
+const ManagerApprovals = lazy(() => import("./pages/manager/Approvals").then((m) => ({ default: m.Approvals })));
 const Tv = lazy(() => import("./pages/tv/Tv").then((m) => ({ default: m.Tv })));
 const TvPair = lazy(() => import("./pages/tv/Tv").then((m) => ({ default: m.TvPair })));
 
@@ -71,10 +75,14 @@ export function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/history" element={<ClocksIn>{(role) => <History role={role} />}</ClocksIn>} />
+        <Route path="/reasons" element={<ClocksIn>{(role) => <Reasons role={role} />}</ClocksIn>} />
         <Route path="/team" element={<ManagerOnly><Team /></ManagerOnly>} />
+        <Route path="/approvals" element={<ManagerOnly><ManagerApprovals /></ManagerOnly>} />
         <Route path="/invite/:token" element={<Welcome />} />
         <Route path="/md/login" element={<MdSignIn />} />
         <Route path="/md" element={<MdHome />} />
+        <Route path="/md/approvals" element={<MdApprovals />} />
+        <Route path="/md/activity" element={<MdActivity />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>

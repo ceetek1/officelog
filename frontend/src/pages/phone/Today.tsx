@@ -2,7 +2,7 @@
 // Prototype B boards "4 · Today: Clock in", "7 · Today: Clock out", "8 · Done for today".
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ApiError, getToday, logout, type Kind, type Role, type Today as TodayData } from "../../api";
+import { ApiError, getToday, logout, type Kind, type ReasonType, type Role, type Today as TodayData } from "../../api";
 import { initials, worked } from "../../format";
 import { useSession } from "../../session";
 import { Alert } from "../../ui/Alert";
@@ -13,7 +13,13 @@ import { ChevronRight, ScanIcon } from "../../ui/icons";
 import { Pill } from "../../ui/Pill";
 import { ActionSheet } from "../../ui/Sheets";
 import { TabBar } from "../../ui/TabBar";
+import { StatePill } from "../../ui/ReasonPills";
+import { AddReason } from "./AddReason";
 import { ClockFlow } from "./ClockFlow";
+
+const REASON_LABEL: Record<string, string> = {
+  late: "Late reason", absent: "Absence reason", left_early: "Left early reason", missed_clock_out: "Missed clock-out",
+};
 
 const CONFIRM_WITHIN_MS = 5 * 60 * 1000;
 
@@ -24,6 +30,7 @@ export function Today({ role }: { role: Role }) {
   const [flow, setFlow] = useState<{ kind: Kind; confirm: boolean; t0: number } | null>(null);
   const [askConfirm, setAskConfirm] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [adding, setAdding] = useState<ReasonType | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -70,6 +77,13 @@ export function Today({ role }: { role: Role }) {
   }
 
   const notes = timeNotes(today);
+  // Something that needs a reason, and has none yet.
+  const needs: ReasonType | null =
+    today.late_minutes !== null && !today.reasons.late ? "late"
+    : today.left_early_minutes !== null && !today.reasons.left_early ? "left_early"
+    : today.missing_clock_out && !today.reasons.missed_clock_out ? "missed_clock_out"
+    : today.absent && !today.reasons.absent ? "absent" : null;
+  const reasonRows = Object.entries(today.reasons);
   const footer = [!today.working_day ? "Not a working day. Clock-ins are still recorded." : "", ...notes]
     .filter(Boolean).join(" ");
 
@@ -104,10 +118,26 @@ export function Today({ role }: { role: Role }) {
           {today.clock_in && !today.clock_out && today.schedule && <Row label="Work ends" value={today.schedule.close} mono />}
           {today.clock_out && <Row label="Worked" value={worked(today.worked_minutes)} />}
         </Group>
+        {reasonRows.length > 0 && (
+          <div className="group">
+            {reasonRows.map(([type, state]) => (
+              <Link key={type} to="/reasons" className="row">
+                <span className="row-body"><span>{REASON_LABEL[type] || type}</span>
+                  <span className="row-right"><StatePill state={state} />
+                    <span style={{ color: "var(--text-4)", display: "flex" }}><ChevronRight /></span></span></span>
+              </Link>
+            ))}
+          </div>
+        )}
+        {needs && <Button variant="secondary" onClick={() => setAdding(needs)}>Add a Reason</Button>}
         {role === "manager" && (
           <div className="group">
             <Link to="/history" className="row">
               <span className="row-body"><span>My History</span>
+                <span style={{ color: "var(--text-4)", display: "flex" }}><ChevronRight /></span></span>
+            </Link>
+            <Link to="/reasons" className="row">
+              <span className="row-body"><span>My Reasons</span>
                 <span style={{ color: "var(--text-4)", display: "flex" }}><ChevronRight /></span></span>
             </Link>
           </div>
@@ -137,7 +167,12 @@ export function Today({ role }: { role: Role }) {
       )}
       {flow && (
         <ClockFlow kind={flow.kind} confirm={flow.confirm} t0={flow.t0}
-          onClose={() => { setFlow(null); void load(); }} />
+          onClose={() => { setFlow(null); void load(); }}
+          onAddReason={(t) => { setFlow(null); void load(); setAdding(t); }} />
+      )}
+      {adding && (
+        <AddReason today={today.work_date} date={today.work_date} type={adding}
+          onCancel={() => setAdding(null)} onDone={() => { setAdding(null); void load(); }} />
       )}
     </div>
   );

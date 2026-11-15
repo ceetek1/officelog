@@ -123,3 +123,34 @@ export interface KioskCode {
 }
 export const kioskCode = () => api<KioskCode>("GET", "/api/kiosk/code");
 export const kioskPair = (token: string) => api<{ ok: true }>("POST", "/api/kiosk/pair", { token });
+
+// ---- Reasons and approvals (spec §4.3) ----
+
+export type ReasonType = "late" | "absent" | "left_early" | "missed_clock_out";
+export type ReasonState = "waiting" | "approved" | "rejected";
+export interface DecisionRow { id: number; decision: "approved" | "rejected"; by: string; note: string; is_override: boolean; at: string }
+export interface Reason {
+  id: number; user_id: number; name: string; role: Role;
+  work_date: string; day_label: string; type: ReasonType; type_label: string; detail: string | null;
+  clock_in: string | null; claimed_time: string | null; text: string;
+  state: ReasonState; decisions: DecisionRow[]; editable: boolean; created_at: string;
+}
+export interface Approvals { waiting: Reason[]; decided: Reason[]; can_override: boolean }
+
+export const getMyReasons = () => api<{ reasons: Reason[]; decided_by: string }>("GET", "/api/reasons/mine");
+export const sendReason = (work_date: string, type: ReasonType, text: string, claimed_time?: string) =>
+  api<Reason>("POST", "/api/reasons", { work_date, type, text, claimed_time: claimed_time || null });
+export const editReason = (id: number, text: string, claimed_time?: string | null) =>
+  api<{ ok: true }>("PUT", `/api/reasons/${id}`, { text, claimed_time: claimed_time || null });
+export const getApprovals = () => api<Approvals>("GET", "/api/approvals");
+export const decide = (id: number, decision: "approved" | "rejected", note: string) =>
+  api<{ ok: true }>("POST", `/api/reasons/${id}/decision`, { decision, note });
+export const overrideDecision = (id: number, decision: "approved" | "rejected", note: string) =>
+  api<{ ok: true }>("POST", `/api/reasons/${id}/override`, { decision, note });
+
+// ---- Activity log (MD) ----
+
+export interface ActivityEntry { id: number; when: string; at: string; who: string; action: string; label: string; tone: string; details: string }
+export const getActivity = (filter: string, before?: number) =>
+  api<{ entries: ActivityEntry[]; more: boolean }>("GET",
+    `/api/activity?filter=${encodeURIComponent(filter)}${before ? `&before=${before}` : ""}`);
