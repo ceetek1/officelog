@@ -29,6 +29,31 @@ export function AllPills({ d }: { d: Day }) {
   );
 }
 
+export type WordTone = "warn" | "bad" | "muted";
+
+/** The one status word for a day in a list, or null when there is nothing to say (on time).
+ *  Shown as coloured text next to the times: a word, never colour alone (spec §10). */
+export function dayWord(d: Day, withMinutes = false): { text: string; tone: WordTone } | null {
+  if (d.absent) return d.absent_excused ? { text: "Absent · excused", tone: "muted" } : { text: "Absent", tone: "bad" };
+  if (d.missing_clock_out) return { text: "No clock-out", tone: "warn" };
+  if (d.late_minutes !== null) {
+    if (d.late_excused) return { text: "Late · excused", tone: "muted" };
+    return { text: withMinutes ? `${d.late_minutes} min late` : "Late", tone: "warn" };
+  }
+  if (d.left_early_minutes !== null) {
+    return d.left_early_excused ? { text: "Left early · excused", tone: "muted" } : { text: "Left early", tone: "warn" };
+  }
+  if (d.clock_in && !d.working_day) return { text: "Day off", tone: "muted" };
+  if (d.not_in_yet) return { text: "Not in yet", tone: "muted" };
+  if (!d.clock_in && !d.working_day) return { text: "Day off", tone: "muted" };
+  return null;
+}
+
+export function Word({ w }: { w: { text: string; tone: WordTone } }) {
+  const cls = w.tone === "warn" ? "word-warn" : w.tone === "bad" ? "word-bad" : "";
+  return <span className={`list-row-sub ${cls}`} style={w.tone === "muted" ? { color: "var(--text-2)" } : undefined}>{w.text}</span>;
+}
+
 /** "added from paper by Emeka" / "claimed 17:40 · approved by Folake" (decision D3, spec §4.3). */
 export function timeNotes(d: Day): string[] {
   const notes: string[] = [];

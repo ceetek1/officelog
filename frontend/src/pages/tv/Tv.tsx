@@ -2,6 +2,11 @@
 // Runs unattended in a smart TV's built-in browser: no interaction, polls every second, shows
 // "Connection lost" after 10 s without the server, reloads itself if stuck or when a new version
 // is deployed.
+import "@fontsource/atkinson-hyperlegible-next/400.css";
+import "@fontsource/atkinson-hyperlegible-next/600.css";
+import "@fontsource/atkinson-hyperlegible-next/700.css";
+import "@fontsource/atkinson-hyperlegible-mono/500.css";
+import "@fontsource/atkinson-hyperlegible-mono/700.css";
 import QRCode from "qrcode";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";

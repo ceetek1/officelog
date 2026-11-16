@@ -1,14 +1,14 @@
-// Team today (Prototype B "Manager · Team today"; spec §10). Refreshes every 30 seconds.
+// Team today (2026 redesign). Refreshes every 30 seconds. Three counts in one card, then people in
+// triage order: who needs a look first, the on-time list last. Each row: name, time, and one
+// status word under the time (a word, never colour alone).
 import { useCallback, useEffect, useState } from "react";
 import { getTeamToday, type TeamToday } from "../../api";
 import { firstName, initials } from "../../format";
-import { Button } from "../../ui/Button";
-import { MainPill } from "../../ui/DayPills";
-import { Pill } from "../../ui/Pill";
-import { StatCards } from "../../ui/StatCards";
 import { Alert } from "../../ui/Alert";
+import { Button } from "../../ui/Button";
+import { dayWord, Word } from "../../ui/DayPills";
 import { TabBar } from "../../ui/TabBar";
-import { PaperSheetIcon, PaperTimeSheet } from "./PaperTime";
+import { PaperTimeSheet } from "./PaperTime";
 
 type Person = TeamToday["people"][number];
 
@@ -20,6 +20,11 @@ const SECTIONS: { title: string; pick: (p: Person) => boolean }[] = [
   { title: "On time", pick: (p) => p.status === "on_time" },
   { title: "Day off", pick: (p) => p.status === "day_off" },
 ];
+
+function paperNote(p: Person): string | null {
+  const paper = p.clock_in?.source === "paper" ? p.clock_in : p.clock_out?.source === "paper" ? p.clock_out : null;
+  return paper ? `From paper · ${firstName(paper.entered_by || "")}` : null;
+}
 
 export function Team() {
   const [data, setData] = useState<TeamToday | null>(null);
@@ -38,64 +43,61 @@ export function Team() {
     return () => clearInterval(id);
   }, [load]);
 
+  const c = data?.counts;
   return (
     <div className="phone">
       <header className="phone-header">
         <div className="phone-header-top">
-          <button type="button" className="header-icon" aria-label="Add time from paper sheet" onClick={() => setPaper(true)}>
-            <PaperSheetIcon />
-          </button>
+          <button type="button" className="btn btn-plain" style={{ fontSize: 17 }} onClick={() => setPaper(true)}>Add Time</button>
         </div>
         {data && <span className="eyebrow">{data.date}</span>}
         <h1 className="large-title">Team</h1>
       </header>
-      <main className="phone-main">
+      <main className="phone-main" style={{ paddingTop: 12, gap: 20 }}>
         {error && (
           <div className="stack-16">
             <p className="error-text" role="alert">{error}</p>
             <Button variant="secondary" onClick={() => void load()}>Try Again</Button>
           </div>
         )}
-        {data && (
+        {data && c && (
           <>
-            <StatCards stats={[
-              { label: "On time", value: data.counts.on_time, color: "var(--ok-fg)" },
-              { label: "Late", value: data.counts.late, color: "var(--warn-fg)" },
-              data.counts.absent > 0
-                ? { label: "Absent", value: data.counts.absent, color: "var(--bad-fg)" }
-                : { label: "Not in yet", value: data.counts.not_in_yet },
-            ]} />
+            <dl className="summary">
+              <div><dt>On time</dt><dd style={{ color: "var(--ok-fg)" }}>{c.on_time}</dd></div>
+              <div><dt>Late</dt><dd style={{ color: c.late ? "var(--warn-fg)" : undefined }}>{c.late}</dd></div>
+              {c.absent > 0
+                ? <div><dt>Absent</dt><dd style={{ color: "var(--bad-fg)" }}>{c.absent}</dd></div>
+                : <div><dt>Not in yet</dt><dd>{c.not_in_yet}</dd></div>}
+            </dl>
             {SECTIONS.map(({ title, pick }) => {
               const people = data.people.filter(pick);
               if (!people.length) return null;
               return (
                 <section key={title}>
                   <h2 className="group-title">{title}</h2>
-                  <div className="group">
-                    {people.map((p) => (
-                      <div key={p.user_id} className="row" style={{ minHeight: 56 }}>
-                        <span className="person-initials" aria-hidden="true">{initials(p.name)}</span>
-                        <span className="row-body">
-                          <span className="two-line">
-                            <span style={{ fontWeight: 600 }}>{p.name}</span>
-                            {(p.clock_in?.source === "paper" || p.clock_out?.source === "paper") && (
-                              <span className="sub-note">Added from paper by {firstName((p.clock_in?.source === "paper" ? p.clock_in : p.clock_out)?.entered_by || "")}</span>
-                            )}
-                          </span>
-                          <span className="row-right">
-                            <span className="mono">
-                              {p.clock_in ? p.clock_in.time : "--:--"}{p.clock_out ? ` – ${p.clock_out.time}` : ""}
+                  <ul className="group" style={{ margin: 0, padding: 0, listStyle: "none" }}>
+                    {people.map((p) => {
+                      const w = p.status === "on_time" || p.status === "not_in_yet" || p.status === "day_off" ? null : dayWord(p, true);
+                      const note = paperNote(p);
+                      return (
+                        <li key={p.user_id} className="list-row" style={{ minHeight: 60 }}>
+                          <span className="person-initials" aria-hidden="true">{initials(p.name)}</span>
+                          <span className="list-row-body">
+                            <span className="two-line">
+                              <span style={{ fontWeight: 600 }}>{p.name}</span>
+                              {note && <span className="list-row-sub" style={{ color: "var(--text-2)" }}>{note}</span>}
                             </span>
-                            {p.status === "late" && <Pill tone="warn">{p.late_minutes} min</Pill>}
-                            {p.status !== "late" && p.status !== "on_time" && p.status !== "not_in_yet"
-                              && p.status !== "absent" && p.status !== "day_off" && <MainPill d={p} />}
-                            {p.missing_clock_out && <Pill tone="warn">No clock-out</Pill>}
-                            {p.left_early_minutes !== null && !p.missing_clock_out && <Pill tone="warn">Left early</Pill>}
+                            <span className="list-row-right">
+                              {p.clock_in
+                                ? <span>{p.clock_in.time}{p.clock_out ? ` – ${p.clock_out.time}` : ""}</span>
+                                : <span style={{ color: "var(--text-2)" }} aria-label="No clock-in">—</span>}
+                              {w && <Word w={w} />}
+                            </span>
                           </span>
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </section>
               );
             })}

@@ -55,7 +55,7 @@ export function Reasons({ role }: { role: Role }) {
       <main className="phone-main">
         {error && <><p className="error-text" role="alert">{error}</p><Button variant="secondary" onClick={() => void load()}>Try Again</Button></>}
         {reasons && reasons.length === 0 && (
-          <div className="group"><p className="empty-note">No reasons yet. If you're late, absent, leave early or forget to clock out, send a reason here.</p></div>
+          <div className="group"><p className="empty-note">No reasons yet.</p></div>
         )}
         {reasons && reasons.length > 0 && (
           <div className="group">

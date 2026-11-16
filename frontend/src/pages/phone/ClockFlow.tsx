@@ -8,7 +8,6 @@ import { worked } from "../../format";
 import { Alert, type AlertAction } from "../../ui/Alert";
 import { Button } from "../../ui/Button";
 import { CheckIcon, DeleteIcon, FaceIdIcon, KeypadIcon } from "../../ui/icons";
-import { Pill } from "../../ui/Pill";
 import { Sheet } from "../../ui/Sheets";
 
 type Stage = "scan" | "typing" | "checking" | "faceid" | "tap" | "receipt";
@@ -127,12 +126,16 @@ export function ClockFlow({ kind, confirm: confirmed, t0, onClose, onAddReason }
     <div className="scanner">
       <div className="navbar">
         <button type="button" className="btn btn-plain" onClick={onClose}>Cancel</button>
-        <span className="navbar-title">Scan TV Code</span>
+        <span className="navbar-title">{label}</span>
       </div>
       <main className="scanner-main">
         <div className="scanner-frame">
           {/* The camera feed. Muted + playsInline are needed on iPhone. */}
           <video ref={video} muted playsInline aria-label="Camera" />
+          <span className="scanner-corner scanner-corner-tl" aria-hidden="true" />
+          <span className="scanner-corner scanner-corner-tr" aria-hidden="true" />
+          <span className="scanner-corner scanner-corner-bl" aria-hidden="true" />
+          <span className="scanner-corner scanner-corner-br" aria-hidden="true" />
         </div>
         <p className={`scanner-msg${message ? " scanner-error" : ""}`} role={message ? "alert" : undefined}>
           {message || "Point at the code on the TV"}
@@ -140,7 +143,7 @@ export function ClockFlow({ kind, confirm: confirmed, t0, onClose, onAddReason }
       </main>
       <footer className="scanner-footer">
         <Button className="btn-glass" onClick={() => { setDigits(""); setTypedError(null); setStage("typing"); }}>
-          <KeypadIcon /><span>Type the Code</span>
+          <KeypadIcon size={20} /><span>Type Code Instead</span>
         </Button>
       </footer>
 
@@ -196,21 +199,25 @@ function ReceiptScreen({ r, onDone, onAddReason }: { r: Receipt; onDone: () => v
   const needs: ReasonType | null = r.kind === "in" && r.late_minutes !== null ? "late"
     : r.kind === "out" && r.left_early_minutes !== null ? "left_early" : null;
   return (
-    <div className="scanner" style={{ background: "var(--bg)", color: "var(--text)" }}>
-      <main className="center-screen" style={{ padding: "0 24px", gap: 16 }}>
-        <span className="receipt-badge"><CheckIcon /></span>
-        <h1 style={{ fontSize: 28, fontWeight: 700 }}>{r.kind === "in" ? "Clocked In" : "Clocked Out"}</h1>
-        <span className="receipt-time">{r.time}</span>
+    <div className="scanner receipt">
+      <main className="center-screen" role="status" style={{ padding: "0 24px", gap: 24 }}>
+        <span className="receipt-badge" aria-hidden="true"><CheckIcon /></span>
+        <div className="stack-16" style={{ gap: 4, alignItems: "center" }}>
+          <h1 className="receipt-title">{r.kind === "in" ? "Clocked In" : "Clocked Out"}</h1>
+          <span className="receipt-time">{r.time}</span>
+          <span className="subtitle">{r.date}</span>
+        </div>
         {r.kind === "in" && r.working_day && (r.late_minutes === null
           ? <span className="pill pill-ok pill-lg">On time</span>
-          : <span className="pill pill-warn pill-lg">Late · {r.late_minutes} min</span>)}
-        {r.kind === "out" && r.left_early_minutes !== null && <Pill tone="warn">Left early · {r.left_early_minutes} min</Pill>}
-        {r.kind === "out" && <span className="subtitle">Worked {worked(r.worked_minutes)}</span>}
-        <span className="status-note">{r.date}</span>
+          : <span className="pill pill-warn pill-lg">{r.late_minutes} min late</span>)}
+        {r.kind === "out" && (
+          <span className="subtitle">{worked(r.worked_minutes)} worked
+            {r.left_early_minutes !== null && <> · <span className="word-warn">left {r.left_early_minutes} min early</span></>}</span>
+        )}
       </main>
-      <footer className="phone-footer" style={{ width: "100%", maxWidth: 520, margin: "0 auto" }}>
-        {needs && <Button onClick={() => onAddReason(needs)}>Add a Reason</Button>}
-        <Button variant={needs ? "secondary" : "primary"} onClick={onDone} autoFocus={!needs}>Done</Button>
+      <footer className="phone-footer" style={{ width: "100%", maxWidth: 520, margin: "0 auto", gap: 6 }}>
+        <Button onClick={onDone} autoFocus>Done</Button>
+        {needs && <Button variant="plain" style={{ width: "100%", fontWeight: 600 }} onClick={() => onAddReason(needs)}>Add a Reason</Button>}
       </footer>
     </div>
   );
