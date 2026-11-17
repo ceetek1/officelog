@@ -1,4 +1,4 @@
-"""Turning server time into the company's local date and time (spec §3: work_date)."""
+"""Turning server time into the company's local date and time (work_date)."""
 
 from __future__ import annotations
 

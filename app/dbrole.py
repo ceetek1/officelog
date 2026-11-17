@@ -1,4 +1,4 @@
-"""The app's own database role and what it may do (builder's choice B1).
+"""The app's own database role and what it may do.
 
 Migrations run as the database owner. The web app connects as ``APP_DB_ROLE``, which gets only
 the privileges listed here. Append-only tables get SELECT and INSERT, never UPDATE or DELETE, so
@@ -22,7 +22,7 @@ TABLE_PRIVILEGES: dict[str, tuple[str, ...]] = {
     "invites": READ_WRITE,
     "kiosks": READ_WRITE,
     "sessions": READ_WRITE,
-    "scans": READ_INSERT,  # recorded times are never edited (paper times are new rows, D3)
+    "scans": READ_INSERT,  # recorded times are never edited (paper times are new rows)
     "scan_attempts": READ_INSERT,
     "reasons": READ_WRITE,  # editable while pending
     "decisions": READ_INSERT,  # append-only; newest wins

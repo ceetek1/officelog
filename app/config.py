@@ -1,4 +1,4 @@
-"""Settings, all from environment variables (spec §3, decision D5)."""
+"""Settings, all from environment variables."""
 
 from __future__ import annotations
 
@@ -34,14 +34,14 @@ class Settings(BaseSettings):
 
     # Shown on the sign-in screen, e.g. "Acme Ltd attendance".
     company_name: str = ""
-    # Who to contact about personal data, shown in the privacy notice (spec §7),
+    # Who to contact about personal data, shown in the privacy notice,
     # e.g. "Folake Adeyemi, MD · folake@example.com · 0803 000 0000".
     privacy_contact: str = ""
 
     # Public address of the site, e.g. https://attendance.example.com (used in invite links).
     base_url: str = "http://localhost:8000"
 
-    # Secret behind the rotating TV codes (spec §5). At least 32 characters.
+    # Secret behind the rotating TV codes. At least 32 characters.
     master_secret: str = Field(min_length=32)
     # Extra web origins allowed for Face ID (e.g. the Vite dev server). BASE_URL is always allowed.
     extra_origins: str = ""

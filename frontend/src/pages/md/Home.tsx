@@ -1,5 +1,5 @@
-// MD · Today (Prototype B "MD · Today"; spec §10): the board for today or an earlier day, the
-// manager's reasons waiting for the MD, and the entrance TV. The MD can add time from paper (D3).
+// MD · Today: the board for today or an earlier day, the
+// manager's reasons waiting for the MD, and the entrance TV. The MD can add time from paper.
 import { useCallback, useEffect, useState } from "react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { getApprovals, getMdToday, type MdToday, type Reason } from "../../api";
@@ -130,7 +130,7 @@ export function MdHome() {
     </div>
   );
 
-  // Phone (Prototype B "MD · Today" phone board): a short summary that links to the other pages.
+  // Phone: a short summary that links to the other pages.
   const phoneBody = data && (
     <>
       {!data.working_day && <p className="status-note">Not a working day. Scans are still recorded.</p>}

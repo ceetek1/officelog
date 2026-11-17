@@ -1,4 +1,4 @@
-"""Sessions, CSRF and role checks (spec §2, §8).
+"""Sessions, CSRF and role checks.
 
 - The session cookie is httpOnly, SameSite=Lax and Secure (in production). It holds a random
   token; the database keeps only its SHA-256 hash.

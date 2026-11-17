@@ -1,5 +1,5 @@
-// Manager · Entrance TV (Prototype B "Entrance TV"; spec §4.4). Status, last seen, remove the TV,
-// and a single-use setup code to type on the TV (builder's choice B13: the TV can't scan a code).
+// Manager · Entrance TV. Status, last seen, remove the TV,
+// and a single-use setup code to type on the TV (the TV can't scan a code).
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ApiError, createTvLink, getTvs, removeTv, type Tv, type TvLink } from "../../api";

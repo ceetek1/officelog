@@ -2,7 +2,7 @@ import legacy from "@vitejs/plugin-legacy";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
-// The entrance TV runs this in its built-in browser, which may be several years old (decision D8).
+// The entrance TV runs this in its built-in browser, which may be several years old.
 // The modern bundle targets browsers from about 2019 (ES2019: Chrome 64+, Safari 12+), with
 // polyfills for what they lack. The legacy bundle (with SystemJS and core-js) covers browsers too
 // old for ES modules, such as older Samsung Tizen and LG webOS TVs. Phones get the modern one.

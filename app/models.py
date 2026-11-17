@@ -1,4 +1,4 @@
-"""Database tables (spec §6, changed by decisions D1, D3, D4).
+"""Database tables.
 
 Times are stored as ``timestamptz`` (UTC). ``work_date`` is the calendar date in the company
 timezone. The day view (late, absent, hours …) is never stored: ``app/rules`` calculates it.
@@ -57,7 +57,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     email: Mapped[str | None] = mapped_column(String(254))  # MD only
     role: Mapped[str] = mapped_column(String(10), nullable=False)
-    password_hash: Mapped[str | None] = mapped_column(Text)  # MD only (D1: no PINs)
+    password_hash: Mapped[str | None] = mapped_column(Text)  # MD only; phones use passkeys
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"))
     created_at: Mapped[datetime] = _now()
 
@@ -65,7 +65,7 @@ class User(Base):
         CheckConstraint(_in("role", ROLES), name="role_valid"),
         CheckConstraint("(role = 'md') = (email IS NOT NULL)", name="email_only_for_md"),
         CheckConstraint("(role = 'md') = (password_hash IS NOT NULL)", name="password_only_for_md"),
-        # Exactly one active MD and one active manager (spec §6, decision D6).
+        # Exactly one active MD and one active manager.
         Index("uq_users_one_active_md_or_manager", "role", unique=True,
               postgresql_where=text("active AND role IN ('md', 'manager')")),
         Index("uq_users_email", func.lower(text("email")), unique=True,
@@ -74,7 +74,7 @@ class User(Base):
 
 
 class Device(Base):
-    """A worker's registered phone: one WebAuthn passkey credential (decision D1)."""
+    """A worker's registered phone: one WebAuthn passkey credential."""
 
     __tablename__ = "devices"
     id: Mapped[int] = _pk()
@@ -120,7 +120,7 @@ class Kiosk(Base):
 
 
 class WebauthnChallenge(Base):
-    """A one-time WebAuthn challenge (decision D1). ``purpose`` is register, login or clock.
+    """A one-time WebAuthn challenge. ``purpose`` is register, login or clock.
     For clock challenges, ``data`` holds what the scan checked (kind, server time, window …)."""
 
     __tablename__ = "webauthn_challenges"
@@ -166,7 +166,7 @@ class Scan(Base):
     kiosk_id: Mapped[int | None] = mapped_column(ForeignKey("kiosks.id"))
     kiosk_window: Mapped[int | None] = mapped_column(BigInteger)
     ip: Mapped[str | None] = mapped_column(String(45))
-    # Decision D3: time added by the manager from the paper sheet.
+    # Time added by the manager or the MD from the paper sheet.
     entered_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
     paper_reason: Mapped[str | None] = mapped_column(String(30))
     created_at: Mapped[datetime] = _now()
@@ -186,7 +186,7 @@ class Scan(Base):
 
 
 class ScanAttempt(Base):
-    """Every scan attempt, including failures (spec §9)."""
+    """Every scan attempt, including failures."""
 
     __tablename__ = "scan_attempts"
     id: Mapped[int] = _pk()
@@ -250,7 +250,7 @@ class ActivityLog(Base):
 
 
 class LoginFailure(Base):
-    """Failed logins, for the lockout (spec §8). ``key`` is e.g. ``email:x@y`` or ``device:<id>``."""
+    """Failed logins, for the lockout. ``key`` is e.g. ``email:x@y`` or ``device:<id>``."""
 
     __tablename__ = "login_failures"
     id: Mapped[int] = _pk()

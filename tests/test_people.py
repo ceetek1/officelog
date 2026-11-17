@@ -1,4 +1,4 @@
-"""People: add a worker, deactivate, reset a lost phone (spec §4.4, §11 step 5)."""
+"""People: add a worker, deactivate, reset a lost phone."""
 
 from datetime import date, timedelta
 

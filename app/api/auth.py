@@ -1,4 +1,4 @@
-"""Sign in and out. The MD uses email + password (spec §2); phones use Face ID passkeys (D1)."""
+"""Sign in and out. The MD uses email + password; phones use Face ID passkeys."""
 
 from __future__ import annotations
 

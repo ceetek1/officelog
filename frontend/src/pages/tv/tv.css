@@ -1,4 +1,4 @@
-/* Entrance TV, 1920×1080, light (Prototype B). Built for old smart-TV browsers:
+/* Entrance TV, 1920×1080, light. Built for old smart-TV browsers:
    flexbox only (no grid, no flex gap), no CSS variables needed for layout. */
 .tv-viewport {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden;

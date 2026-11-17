@@ -1,4 +1,4 @@
-"""Invites and Face ID sign-in (spec §4.1; decision D1)."""
+"""Invites and Face ID sign-in."""
 
 from sqlalchemy import text
 

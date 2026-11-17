@@ -1,4 +1,4 @@
-// Manager · People (Prototype B "People", "Add person"; spec §4.4).
+// Manager · People.
 // Add a worker (invite link + QR), reset a lost phone, deactivate. The entrance TV is a row here.
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";

@@ -1,4 +1,4 @@
-"""Who may send and decide reasons (spec §2, §4.3; decision D4). Pure functions."""
+"""Who may send and decide reasons. Pure functions."""
 
 from __future__ import annotations
 
@@ -44,5 +44,5 @@ def who_decides(owner_role: str) -> tuple[str, ...]:
 
 
 def may_decide(actor_id: int, actor_role: str, owner_id: int, owner_role: str) -> bool:
-    """Nobody decides on their own reason, whatever their role (spec §2)."""
+    """Nobody decides on their own reason, whatever their role."""
     return actor_id != owner_id and actor_role in who_decides(owner_role)

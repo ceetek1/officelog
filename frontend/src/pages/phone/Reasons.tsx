@@ -1,4 +1,4 @@
-// My reasons (Prototype B "10 · My reasons").
+// My reasons.
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyReasons, getToday, type Reason, type Role } from "../../api";

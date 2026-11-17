@@ -1,4 +1,4 @@
-// Rotating clock-in codes: a browser copy of app/codes.py (decision D2).
+// Rotating clock-in codes: a browser copy of app/codes.py.
 //
 // Not used yet: today the server makes the codes and the TV only displays them. This file exists
 // so a future offline mode can let the TV make codes itself with the SAME algorithm, QR format and

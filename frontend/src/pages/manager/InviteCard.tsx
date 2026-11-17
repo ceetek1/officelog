@@ -1,4 +1,4 @@
-// The invite (Prototype B "Manager · Add person"): QR code, "single use · expires …",
+// The invite: QR code, "single use · expires …",
 // Share Link and Copy Link. Used after adding a person and after resetting a phone.
 import { useState } from "react";
 import type { Invite } from "../../api";

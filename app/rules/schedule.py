@@ -1,4 +1,4 @@
-"""The working schedule, one entry per weekday (decision D5).
+"""The working schedule, one entry per weekday.
 
 The schedule comes from the ``SCHEDULE_JSON`` environment variable, so it can change with a
 restart instead of a rebuild. Format (all seven days must be present; ``null`` means a day off)::
@@ -56,7 +56,7 @@ def _weekday(start: str, grace: int, close: str) -> dict:
     return {"start": start, "grace": grace, "close": close}
 
 
-# Decision D5 defaults, as confirmed by the owner on 2026-11-15.
+# The defaults, as confirmed by the owner on 2026-11-15.
 DEFAULT_SCHEDULE_JSON: dict[str, dict | None] = {
     "mon": _weekday("08:00", 10, "17:00"),
     "tue": _weekday("08:00", 10, "17:00"),

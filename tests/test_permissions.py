@@ -1,7 +1,7 @@
-"""Spec §2 / §12: every endpoint, called with the wrong role, returns 403.
+"""Every endpoint, called with the wrong role, returns 403.
 
 Step 1 has few endpoints; this test walks every route automatically, so endpoints added in later
-steps are covered as soon as they exist. The full §2 table walk-through is extended step by step.
+steps are covered as soon as they exist. The full role table is walked in test_permission_table.py.
 """
 
 from fastapi.routing import APIRoute

@@ -1,4 +1,4 @@
-"""Spec §6: app/rules has no database or framework imports."""
+"""app/rules has no database or framework imports."""
 
 import ast
 from pathlib import Path

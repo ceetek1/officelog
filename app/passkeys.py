@@ -1,4 +1,4 @@
-"""Face ID / fingerprint sign-in with WebAuthn passkeys (decision D1).
+"""Face ID / fingerprint sign-in with WebAuthn passkeys.
 
 Phones register a passkey on their built-in authenticator (``platform``), as a discoverable
 credential, and every use requires user verification (Face ID, fingerprint or phone passcode).

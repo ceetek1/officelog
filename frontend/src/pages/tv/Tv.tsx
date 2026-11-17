@@ -1,4 +1,4 @@
-// Entrance TV welcome board (Prototype B "Smart TV · welcome board"; spec §4.2, §5; decision D2).
+// Entrance TV welcome board.
 // Runs unattended in a smart TV's built-in browser: no interaction, polls every second, shows
 // "Connection lost" after 10 s without the server, reloads itself if stuck or when a new version
 // is deployed.

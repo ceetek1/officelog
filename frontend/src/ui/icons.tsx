@@ -1,4 +1,4 @@
-// Line icons drawn to match Prototype B. Decorative: always aria-hidden.
+// Line icons. Decorative: always aria-hidden.
 import type { ReactNode } from "react";
 
 function Svg({ size, stroke = 2, view = "0 0 24 24", children }: {

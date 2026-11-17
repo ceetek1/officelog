@@ -1,4 +1,4 @@
-// Add (or edit) a reason: a sheet with Cancel / Send (Prototype B "9 · Add a reason").
+// Add (or edit) a reason: a sheet with Cancel / Send.
 import { useState } from "react";
 import { ApiError, editReason, sendReason, type Reason, type ReasonType } from "../../api";
 import { Group } from "../../ui/Grouped";

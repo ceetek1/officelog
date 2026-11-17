@@ -1,4 +1,4 @@
-"""Invites: a worker opens the link on their own phone and sets up Face ID (spec §4.1, D1)."""
+"""Invites: a worker opens the link on their own phone and sets up Face ID."""
 
 from __future__ import annotations
 

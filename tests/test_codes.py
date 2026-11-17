@@ -1,4 +1,4 @@
-"""Rotating codes (spec §5, §12; decision D2): stale QR and stale typed codes are rejected."""
+"""Rotating codes: stale QR and stale typed codes are rejected."""
 
 import json
 from datetime import date, datetime, timezone

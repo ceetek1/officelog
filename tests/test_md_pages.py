@@ -1,4 +1,4 @@
-"""The MD's Today board, history per person, and the privacy notice (spec §7, §10, §11 step 6)."""
+"""The MD's Today board, history per person, and the privacy notice."""
 
 from datetime import date
 

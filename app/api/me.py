@@ -1,4 +1,4 @@
-"""The signed-in worker's (or manager's) own days. The MD has no clock-in (spec §2)."""
+"""The signed-in worker's (or manager's) own days. The MD has no clock-in."""
 
 from __future__ import annotations
 

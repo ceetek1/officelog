@@ -1,4 +1,4 @@
-// Manager · Approvals (Prototype B). Workers' reasons; the manager's own go to the MD.
+// Manager · Approvals. Workers' reasons; the manager's own go to the MD.
 import { useCallback, useEffect, useState } from "react";
 import { ApiError, decide, getApprovals, type Approvals as Data, type Reason } from "../../api";
 import { initials } from "../../format";

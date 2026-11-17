@@ -1,4 +1,4 @@
-"""Spec §12: one test walks the whole permission table in §2, row by row and role by role.
+"""One test walks the whole role permission table, row by row and role by role.
 
 Each row names an endpoint that does what the row says. "no" means 403 with code "forbidden" (the
 role check). "yes" means the role check lets the caller through: any other answer is fine (for
@@ -18,7 +18,7 @@ LAGOS = ZoneInfo("Africa/Lagos")
 MON = date(2026, 11, 16)
 W, M, D = "worker", "manager", "md"
 
-# (row of §2, method, path, body, roles allowed)
+# (row of the table, method, path, body, roles allowed)
 TABLE = [
     ("Clocks in and out", "POST", "/api/clock/start", {"kind": "in", "method": "typed", "code": "000000"}, {W, M}),
     ("Sees own times and history", "GET", "/api/me/history", None, {W, M}),
@@ -36,7 +36,7 @@ TABLE = [
     ("Sets up or revokes the entrance kiosk (link)", "POST", "/api/kiosks", None, {M}),
     ("Sets up or revokes the entrance kiosk (list)", "GET", "/api/kiosks", None, {M}),
     ("Sets up or revokes the entrance kiosk (revoke)", "POST", "/api/kiosks/{kiosk}/revoke", None, {M}),
-    # Decision D3: time from the paper sheet. The manager and the MD, never a worker.
+    # Time from the paper sheet. The manager and the MD, never a worker.
     ("Adds time from the paper sheet", "POST", "/api/paper",
      {"user_id": "{other}", "work_date": "2026-11-16", "clock_in": "07:00", "reason": "no_smartphone"}, {M, D}),
     ("Adds time from the paper sheet (form)", "GET", "/api/paper/day", None, {M, D}),
@@ -45,7 +45,7 @@ TABLE = [
     ("MD adds the manager (status)", "GET", "/api/md/manager", None, {D}),
     ("MD adds the manager (add)", "POST", "/api/md/manager", {"name": "New Manager"}, {D}),
     ("MD adds the manager (new invite)", "POST", "/api/md/manager/new-invite", None, {D}),
-    # MD pages (spec §10): the Today board and history per person.
+    # MD pages: the Today board and history per person.
     ("Sees everyone's times (MD Today board)", "GET", "/api/md/today", None, {D}),
     ("Sees everyone's times (MD people)", "GET", "/api/md/people", None, {D}),
     ("Sees everyone's times (MD history per person)", "GET", "/api/md/people/{other}/history", None, {D}),
@@ -92,14 +92,14 @@ def test_permission_table(world, row, method, path, body, allowed):
 
 
 def test_manager_deciding_own_reason_is_403(world):
-    """§12: 'the manager decides on own reason → 403'."""
+    """The manager deciding their own reason gets 403."""
     users, reasons = world
     r = users[M].post(f"/api/reasons/{reasons['manager_reason']}/decision", {"decision": "approved"})
     assert r.status_code == 403
 
 
 def test_nobody_edits_a_recorded_time():
-    """§2 last row: there is no endpoint that changes a scan; the database refuses too
+    """Nobody edits a recorded time: there is no endpoint that changes a scan; the database refuses too
     (see test_db_role.py)."""
     from app.main import ROUTERS
 

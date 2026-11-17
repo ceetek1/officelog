@@ -1,4 +1,4 @@
-"""The entrance TV (spec §4.4, §5; decision D2).
+"""The entrance TV.
 
 The TV is paired once with a single-use setup link and then keeps a kiosk token in an httpOnly
 cookie. It polls ``GET /api/kiosk/code`` every second; the server makes the codes, so the TV holds

@@ -1,4 +1,4 @@
-"""Clock in and out from the TV (spec §4.2, §5, §12; decisions D1, D2)."""
+"""Clock in and out from the TV."""
 
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -123,7 +123,7 @@ def test_scan_time_is_when_the_code_was_checked(client, registered, clock):
 
 
 def test_second_clock_in_is_rejected(client, registered, clock):
-    """Step 2 done check, and spec §12."""
+    """Clocking in and out end to end."""
     _, phone, csrf = registered()
     clock.set(lagos(8, 4))
     clock_in_out(client, csrf, phone, clock)

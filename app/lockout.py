@@ -1,4 +1,4 @@
-"""Failed-login lockout (spec §8): 5 failures within 15 minutes lock that email or device for 15
+"""Failed-login lockout: 5 failures within 15 minutes lock that email or device for 15
 minutes."""
 
 from __future__ import annotations

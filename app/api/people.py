@@ -1,4 +1,4 @@
-"""People (spec §2 "Adds, deactivates workers; resets a lost phone", §4.4): the manager only.
+"""People (add and deactivate workers, reset a lost phone): the manager only.
 
 The logic lives in ``app/people.py`` (shared with the admin command line).
 """

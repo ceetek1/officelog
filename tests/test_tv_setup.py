@@ -1,4 +1,4 @@
-"""Entrance TV setup and removal by the manager (spec §4.4, §11 step 5)."""
+"""Entrance TV setup and removal by the manager."""
 
 import re
 

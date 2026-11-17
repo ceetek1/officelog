@@ -1,4 +1,4 @@
-// Time from Paper (Prototype B "Time from paper"; decision D3). The manager or the MD adds a
+// Time from Paper. The manager or the MD adds a
 // clock-in and/or clock-out from the paper sheet and says why. It can't be edited afterwards.
 import { useEffect, useState } from "react";
 import { ApiError, addPaperTime, getPaperDay, type PaperDay, type PaperReason } from "../../api";

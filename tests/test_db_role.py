@@ -1,5 +1,4 @@
-"""Spec §12: the app's database role cannot UPDATE or DELETE activity_log (builder's choice B1
-extends this to scans and decisions)."""
+"""The app's database role cannot UPDATE or DELETE activity_log, scans or decisions."""
 
 import pytest
 from sqlalchemy import text

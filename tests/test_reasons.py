@@ -1,4 +1,4 @@
-"""Reasons, decisions and override (spec §4.3, §11 step 4, §12; decision D4)."""
+"""Reasons, decisions and override."""
 
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo

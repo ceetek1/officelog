@@ -1,5 +1,4 @@
-"""Setting up and removing the entrance TV (spec §2 "Sets up or revokes the entrance kiosk", §4.4):
-the manager only. The TV itself pairs through ``POST /api/kiosk/pair`` (app/api/kiosk.py)."""
+"""Setting up and removing the entrance TV: the manager only. The TV itself pairs through ``POST /api/kiosk/pair`` (app/api/kiosk.py)."""
 
 from __future__ import annotations
 

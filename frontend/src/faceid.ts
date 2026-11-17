@@ -1,4 +1,4 @@
-// Face ID / fingerprint via WebAuthn passkeys (decision D1).
+// Face ID / fingerprint via WebAuthn passkeys.
 import { startAuthentication, startRegistration } from "@simplewebauthn/browser";
 
 export class FaceIdCancelled extends Error {}
