@@ -1,15 +1,26 @@
-// Invite link: welcome, add to home screen, privacy (step 1 of 2), then turn on Face ID (step 2 of 2).
-// Prototype B boards "1 · Welcome, home screen, privacy" and "2 · Turn on Face ID".
+// Invite link (2026 redesign): Welcome with the two home-screen steps, then Face ID.
+// No privacy step: one line under Continue says what is recorded and links to the four-row notice.
+// Tapping Continue is the acknowledgement the server records (privacy_ack), so the line must stay
+// visible next to the button.
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ApiError, getInvite, inviteOptions, inviteRegister, type InviteInfo } from "../../api";
 import { faceIdAvailable, faceIdRegister, FaceIdCancelled } from "../../faceid";
 import { isIos, isStandalone } from "../../format";
 import { useSession } from "../../session";
+import { AppIcon } from "../../ui/AppIcon";
 import { Button } from "../../ui/Button";
-import { Group, Row } from "../../ui/Grouped";
-import { ChevronLeft, ChevronRight, FaceIdIcon, PhoneIcon, ShareIcon } from "../../ui/icons";
+import { ChevronLeft, FaceIdIcon, ShareIcon } from "../../ui/icons";
 import { PrivacyNotice } from "./PrivacyNotice";
+
+const PlusSquare = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+    strokeLinejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" /><path d="M12 8.5v7M8.5 12h7" /></svg>
+);
+const Dots = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" /></svg>
+);
 
 export function Welcome() {
   const { token = "" } = useParams();
@@ -18,7 +29,6 @@ export function Welcome() {
   const [info, setInfo] = useState<InviteInfo | null>(null);
   const [invalid, setInvalid] = useState<string | null>(null);
   const [step, setStep] = useState<1 | 2>(1);
-  const [ack, setAck] = useState(false);
   const [showNotice, setShowNotice] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,78 +68,64 @@ export function Welcome() {
   if (!info) return <div className="phone" aria-busy="true" />;
 
   if (step === 2) {
+    const can = faceIdAvailable();
     return (
       <div className="phone">
         <div className="navbar">
-          <button type="button" className="btn btn-plain" onClick={() => setStep(1)}><ChevronLeft />Back</button>
+          <button type="button" className="btn btn-plain" onClick={() => setStep(1)}><ChevronLeft size={22} />Back</button>
         </div>
-        <main className="center-screen">
-          <span className="eyebrow">Step 2 of 2</span>
-          <span style={{ color: "var(--primary)", display: "flex", margin: "12px 0" }}><FaceIdIcon /></span>
-          <h1 style={{ fontSize: 28, lineHeight: 1.2, fontWeight: 700 }}>Turn On Face ID</h1>
-          <p className="subtitle" style={{ lineHeight: 1.4 }}>You'll use it each time you clock in or out.</p>
-          <p className="status-note">No Face ID? Your phone will use your fingerprint or passcode.</p>
+        <main className="center-screen" style={{ gap: 20 }}>
+          <span style={{ color: "var(--brand)", display: "flex" }}><FaceIdIcon size={88} /></span>
+          <div className="stack-16" style={{ gap: 8 }}>
+            <h1 style={{ fontSize: 28, lineHeight: "34px", fontWeight: 700 }}>Turn On Face ID</h1>
+            <p className="subtitle">You'll use it to clock in and out.</p>
+          </div>
           {error && <p className="error-text" role="alert">{error}</p>}
         </main>
-        <footer className="phone-footer">
-          <Button onClick={turnOnFaceId} disabled={busy || !faceIdAvailable()}>
-            {busy ? "Setting Up…" : "Use Face ID"}
-          </Button>
-          {!faceIdAvailable() && (
-            <p className="error-text">This browser can't use Face ID. Open the link in Safari (iPhone) or Chrome (Android).</p>
-          )}
+        <footer className="phone-footer" style={{ gap: 14 }}>
+          <Button onClick={turnOnFaceId} disabled={busy || !can}>{busy ? "Setting Up…" : "Turn On Face ID"}</Button>
+          {can ? <p className="fine-print">No Face ID? Your fingerprint or passcode works too.</p>
+            : <p className="error-text" role="alert">This browser can't use Face ID. Open the link in Safari (iPhone) or Chrome (Android).</p>}
         </footer>
       </div>
     );
   }
 
   const ios = isIos();
-  const standalone = isStandalone();
+  const who = info.invited_by ? `${info.invited_by.split(" ")[0]} added you` : "You've been added";
   return (
     <div className="phone">
-      <main className="phone-main">
-        <div className="stack-16" style={{ gap: 8, padding: "16px 4px 0" }}>
-          <span className="eyebrow">Step 1 of 2</span>
-          <h1 className="large-title">Welcome, {info.name.split(" ")[0]}</h1>
-          <p className="subtitle" style={{ lineHeight: 1.4 }}>
-            {info.invited_by ? `${info.invited_by} added you` : "You've been added"}
-            {info.company ? ` to ${info.company}.` : " to the attendance app."}
-          </p>
-        </div>
-        {!standalone && (
-          <Group title="First, Add to Home Screen"
-            footer={ios ? "Then open the app from its new icon, and always use that icon." : "Then open the app from its new icon."}>
-            <div className="row">
-              <span style={{ display: "flex", alignItems: "center", marginRight: 12, color: "var(--primary)" }}><ShareIcon /></span>
-              <span className="row-body"><span>iPhone</span><span className="row-value" style={{ fontSize: 15 }}>Share › Add to Home Screen</span></span>
-            </div>
-            <div className="row">
-              <span style={{ display: "flex", alignItems: "center", marginRight: 12, color: "var(--primary)" }}><PhoneIcon /></span>
-              <span className="row-body"><span>Android</span><span className="row-value" style={{ fontSize: 15 }}>⋮ › Install app</span></span>
-            </div>
-          </Group>
-        )}
-        <Group title="Privacy" footer="No location. No photos. Your face never leaves your phone.">
-          <Row label="What we collect" value="Times, this phone" />
-          <Row label="Who sees it" value="Manager, MD" />
-          <Row label="How long" value="During the test" />
-          <button type="button" className="row row-button" onClick={() => setShowNotice(true)}>
-            <span className="row-body">
-              <span style={{ color: "var(--primary)" }}>Full privacy notice</span>
-              <span style={{ color: "var(--text-4)", display: "flex" }}><ChevronRight /></span>
-            </span>
-          </button>
-        </Group>
-      </main>
-      <footer className="phone-footer">
-        <div className="group">
-          <div className="row" style={{ paddingRight: 16, alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-            <span id="ack-label">I've read the privacy notice</span>
-            <button type="button" role="switch" aria-checked={ack} aria-labelledby="ack-label" className="switch"
-              onClick={() => setAck(!ack)} />
+      <main className="phone-main" style={{ paddingTop: 64, gap: 32 }}>
+        <div className="stack-16" style={{ padding: "0 4px", alignItems: "flex-start" }}>
+          <AppIcon size={72} />
+          <div className="stack-16" style={{ gap: 6 }}>
+            <h1 className="large-title">Welcome, {info.name.split(" ")[0]}</h1>
+            <p className="subtitle">{who} to {info.company || "the attendance app"}.</p>
           </div>
         </div>
-        <Button disabled={!ack} onClick={() => setStep(2)}>Continue</Button>
+        {!isStandalone() && (
+          <section>
+            <h2 className="group-title">First, add it to your Home Screen</h2>
+            <ol className="group" style={{ margin: 0, padding: 0, listStyle: "none" }}>
+              <li className="list-row">
+                <span className="step-icon">{ios ? <ShareIcon size={18} /> : <Dots />}</span>
+                <span className="list-row-body">{ios ? <span>Tap <strong>Share</strong></span> : <span>Tap the <strong>⋮</strong> menu</span>}</span>
+              </li>
+              <li className="list-row">
+                <span className="step-icon"><PlusSquare /></span>
+                <span className="list-row-body">{ios ? <span>Tap <strong>Add to Home Screen</strong></span> : <span>Tap <strong>Install app</strong></span>}</span>
+              </li>
+            </ol>
+            <p className="group-footer">Then open the app from its new icon.</p>
+          </section>
+        )}
+      </main>
+      <footer className="phone-footer" style={{ gap: 14 }}>
+        <Button onClick={() => setStep(2)}>Continue</Button>
+        <p className="fine-print">
+          Only your clock times are recorded.{" "}
+          <button type="button" className="text-link" onClick={() => setShowNotice(true)}>Privacy</button>
+        </p>
       </footer>
       {showNotice && <PrivacyNotice company={info.company} onClose={() => setShowNotice(false)} />}
     </div>

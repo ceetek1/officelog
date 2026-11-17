@@ -1,36 +1,91 @@
-/* Prototype B design tokens (decision D8). */
+/* Design tokens (2026 redesign: Apple HIG, company green #118C14).
+   Every colour pair below was checked against WCAG AA. Rules worth knowing before changing one:
+   - --brand (#118C14) is for SURFACES: filled buttons, the app icon, the receipt check, the day bar.
+     White text on it is only 4.39:1, so text on --brand must be large (19px bold, see .btn-primary).
+   - --primary (#0E7A11) is for small TEXT and links: 5.5:1 on white.
+   - Status colours are always shown with a word, never colour alone. */
 :root {
-  --bg: #fafafa;
-  --card: #ffffff;
-  --border: #e5e5e5;
-  --divider: #f0f0f0;
-  --text: #171717;
-  --text-2: #525252;
-  --text-3: #737373;
-  --text-4: #a3a3a3;
+  color-scheme: light dark;
 
-  --primary: #1d4ed8;
-  --primary-hover: #1e40af;
-  --secondary: #f5f5f5;
-  --secondary-hover: #ebebeb;
-  --secondary-border: #d4d4d4;
-  --scanner: #2563eb;
+  --bg: #f2f2f7;          /* iOS grouped background */
+  --card: #ffffff;
+  --fill: #f2f2f7;        /* tiles inside a card */
+  --fill-strong: #e3e3e8; /* segmented control track, time inputs */
+  --chrome: #f9f9f9;      /* tab bar */
+  --border: #e5e5ea;
+  --divider: #e5e5ea;
+  --separator: #d1d1d6;
+  --text: #000000;
+  --text-2: #636366;      /* 5.4:1 on --bg */
+  --text-3: #6c6c70;      /* 4.6:1 on --bg */
+  --text-4: #8e8e93;      /* chevrons and other non-text marks only */
+
+  --brand: #118c14;
+  --brand-hover: #0e7a11;
+  --primary: #0e7a11;
+  --primary-hover: #0a5e0d;
+  --tint: #e3f3e3;        /* light green behind --primary text */
+  --tint-text: #0a5e0d;
+  --dark-button: #1c1c1e;
+  --dark-button-text: #ffffff;
+  --secondary: #e9e9ee;
+  --secondary-hover: #dedee3;
+  --secondary-border: #d1d1d6;
+  --scanner: #ffffff;
+  --badge: #d70015;
+  --destructive: #c4161c;
 
   /* Status pills: always a word plus a tint. */
-  --ok-fg: #15803d;      --ok-bg: #f0fdf4;
-  --warn-fg: #b45309;    --warn-bg: #fffbeb;
-  --bad-fg: #b91c1c;     --bad-bg: #fef2f2;
-  --excused-fg: #6d28d9; --excused-bg: #f5f3ff;
-  --wait-fg: #404040;    --wait-bg: #f5f5f5;
+  --ok-fg: #0a5e0d;      --ok-bg: #e3f3e3;
+  --warn-fg: #a13f06;    --warn-bg: #fdebdc;
+  --bad-fg: #a1241b;     --bad-bg: #fbe4e2;
+  --excused-fg: #3a3a3c; --excused-bg: #e9e9ee;
+  --wait-fg: #3a3a3c;    --wait-bg: #e9e9ee;
 
   --margin: 16px;
   --gap: 16px;
   --radius-card: 12px;
   --radius-button: 14px;
-  --button-h: 52px;
+  --button-h: 56px;
   --row-h: 52px;
   --touch: 44px;
 
-  --font: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --mono: "Atkinson Hyperlegible Mono", ui-monospace, Menlo, Consolas, monospace;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, "Segoe UI", system-ui, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --card: #1c1c1e;
+    --fill: #2c2c2e;
+    --fill-strong: #3a3a3c;
+    --chrome: #161618;
+    --border: #38383a;
+    --divider: #38383a;
+    --separator: #38383a;
+    --text: #ffffff;
+    --text-2: #aeaeb2;
+    --text-3: #98989f;
+    --text-4: #8e8e93;
+
+    --brand: #118c14;
+    --brand-hover: #18a01c;
+    --primary: #4cc452;
+    --primary-hover: #7fd883;
+    --tint: #173d19;
+    --tint-text: #8fdb92;
+    --dark-button: #f2f2f7;
+    --dark-button-text: #000000;
+    --secondary: #2c2c2e;
+    --secondary-hover: #3a3a3c;
+    --secondary-border: #48484a;
+    --destructive: #ff6961;
+
+    --ok-fg: #8fdb92;      --ok-bg: #173d19;
+    --warn-fg: #ffb061;    --warn-bg: #3d2a12;
+    --bad-fg: #ff9a92;     --bad-bg: #3d1a17;
+    --excused-fg: #d1d1d6; --excused-bg: #2c2c2e;
+    --wait-fg: #d1d1d6;    --wait-bg: #2c2c2e;
+  }
 }

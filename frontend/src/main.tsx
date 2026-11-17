@@ -1,8 +1,5 @@
-import "@fontsource/atkinson-hyperlegible-next/400.css";
-import "@fontsource/atkinson-hyperlegible-next/600.css";
-import "@fontsource/atkinson-hyperlegible-next/700.css";
-import "@fontsource/atkinson-hyperlegible-mono/500.css";
-import "@fontsource/atkinson-hyperlegible-mono/700.css";
+// Phones use the system font (SF Pro on iPhone, Roboto on Android), so the app feels native.
+// The entrance TV keeps Atkinson Hyperlegible; it loads those fonts itself (pages/tv/Tv.tsx).
 import "./styles/tokens.css";
 import "./styles/base.css";
 

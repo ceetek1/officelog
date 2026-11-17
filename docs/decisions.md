@@ -227,3 +227,22 @@ These are small choices the spec leaves open. They are listed so a reviewer sees
   buttons at the top. A person and People have a back button. On a laptop nothing changed.
   The MD can add the site to the home screen (the same app icon as the workers'); when signed out,
   it opens on the MD's email sign-in on a phone that the MD used before.
+- **B26. Redesign: Apple HIG, company green, less on screen** (owner's answers, 2026-11-16: the app
+  felt cluttered and the privacy notice was too long). Design canvas: "Attendance Redesign".
+  - **Look.** System font (SF Pro on iPhone, Roboto on Android) instead of Atkinson Hyperlegible; the
+    entrance TV keeps Atkinson and loads it itself. iOS grouped greys, one accent: the company green
+    `#118C14`. White text on that green is 4.39:1, under WCAG AA for normal text, so it is used for
+    surfaces (filled buttons with 19 px bold labels, which count as large text, the app icon, the
+    receipt check, the day bar) and a darker `#0E7A11` (5.5:1) for small text and links. Dark mode
+    follows the phone's setting, with a lighter green `#4CC452` for text. All colours live in
+    `frontend/src/styles/tokens.css`; pages use tokens, never raw colours.
+  - **Today** is one card whose layout never changes between states (headline, one status line,
+    the workday as a bar from start to close, the two times), instead of a row of status pills. The
+    big button is 56 px in the thumb zone: green Clock In, dark Clock Out, no button when done.
+  - **Privacy.** The invite no longer has a privacy step or an "I've read it" switch. One line sits
+    under Continue ("Only your clock times are recorded. Privacy"), linking to the notice, now four
+    short rows. Tapping Continue is the acknowledgement the server records (`privacy_ack`), so that
+    line must stay next to the button. The notice still says the internet address is recorded.
+  - **Lists** (History, Team) show one status word under the time ("Late", "24 min late",
+    "Absent · excused") instead of pills; on-time rows show no word.
+  - Touch targets are at least 44 px everywhere, including segmented controls (iOS's own are 32 px).

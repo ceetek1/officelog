@@ -1,5 +1,6 @@
-// Spec §7 (Nigeria Data Protection Act 2023): what is collected, why, who sees it, how long, and
-// who to contact. Shown before a phone is registered, and at /privacy for anyone.
+// Privacy (Nigeria Data Protection Act 2023, spec §7), cut to four short rows: what is recorded,
+// what never is, who sees it, how long. Shown from one line on the Welcome screen, from the
+// account menu, and at /privacy for anyone.
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getPrivacy } from "../../api";
@@ -15,29 +16,18 @@ function usePrivacy(fallbackCompany = "") {
 export function PrivacyText({ company, contact }: { company: string; contact: string }) {
   const who = company || "your employer";
   return (
-    <div className="prose">
-      <h3>What we collect</h3>
-      <p>Your name, the times you clock in and out, a passkey that ties this app to your phone, and the
-        internet address (IP) your phone used for each clock-in or clock-out. If you can't scan, the
-        manager may add your time from the paper sheet; that is recorded with who added it and why.</p>
-      <h3>What we don't collect</h3>
-      <p>No location, no photos, no phone number. Face ID or fingerprint is checked by your phone; your
-        face and fingerprint never leave it.</p>
-      <h3>Why</h3>
-      <p>To record attendance at {who} during a trial of this system, and to measure whether the system
-        is easy to use (for example, how often a scan works the first time).</p>
-      <h3>Who sees it</h3>
-      <p>You see your own times. The manager and the managing director see everyone's. Nobody else, and
-        it is not sold or shared.</p>
-      <h3>How long we keep it</h3>
-      <p>For the length of the trial. Then it is deleted, unless {who} decides to keep using the system,
-        in which case you will be told.</p>
-      <h3>Your rights and who to contact</h3>
-      <p>You can ask to see what is held about you, to have a mistake corrected, or to have it deleted
-        when the trial ends. {contact
-          ? <>Contact: <strong>{contact}</strong>.</>
-          : <>Ask your manager or the managing director.</>}</p>
-    </div>
+    <>
+      <dl className="facts">
+        <div><dt>Recorded</dt><dd>Your clock times, this phone, and its internet address</dd></div>
+        <div><dt>Never recorded</dt><dd>Location, photos or your face</dd></div>
+        <div><dt>Seen by</dt><dd>You, your manager and the MD</dd></div>
+        <div><dt>Kept</dt><dd>Until the trial ends, then deleted</dd></div>
+      </dl>
+      <p className="group-footer" style={{ marginTop: 8 }}>
+        Used only to record attendance at {who}. To see, fix or delete your data, {contact
+          ? <>contact <strong>{contact}</strong></> : <>ask your manager</>}. Nigeria Data Protection Act 2023.
+      </p>
+    </>
   );
 }
 
@@ -46,7 +36,7 @@ export function PrivacyNotice({ company, onClose }: { company: string; onClose: 
   const p = usePrivacy(company);
   return (
     <Sheet title="Privacy" onCancel={onClose} cancelLabel="Close">
-      <div className="sheet-body"><PrivacyText company={p.company || company} contact={p.contact} /></div>
+      <div className="sheet-body"><div><PrivacyText company={p.company || company} contact={p.contact} /></div></div>
     </Sheet>
   );
 }
@@ -59,15 +49,14 @@ export function PrivacyPage() {
     <div className="phone">
       <div className="navbar">
         <button type="button" className="btn btn-plain" onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/"))}>
-          <ChevronLeft />Back</button>
+          <ChevronLeft size={22} />Back</button>
         <span />
       </div>
       <header className="phone-header" style={{ paddingTop: 0 }}>
-        <h1 className="large-title">Privacy Notice</h1>
-        <span className="status-note">{p.company ? `${p.company} attendance` : "Attendance"} · Nigeria Data Protection Act 2023</span>
+        <h1 className="large-title">Privacy</h1>
       </header>
       <main className="phone-main" style={{ paddingBottom: 32 }}>
-        <PrivacyText company={p.company} contact={p.contact} />
+        <div><PrivacyText company={p.company} contact={p.contact} /></div>
       </main>
     </div>
   );
