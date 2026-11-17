@@ -1,4 +1,4 @@
-"""History by month and Team today (spec §10, §11 step 3)."""
+"""History by month and Team today."""
 
 from datetime import date, datetime
 from zoneinfo import ZoneInfo

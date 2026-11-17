@@ -1,4 +1,4 @@
-# One image: the built React app is served by FastAPI on the same origin as the API (spec §8).
+# One image: the built React app is served by FastAPI on the same origin as the API.
 
 # ---- 1. Build the frontend ----
 FROM node:22-bookworm-slim AS frontend

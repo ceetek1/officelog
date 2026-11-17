@@ -1,4 +1,4 @@
-// System-style alert (centered, title + message + actions), as in Prototype B.
+// System-style alert (centered, title + message + actions).
 import { useEffect, useId, useRef, type ReactNode } from "react";
 
 export interface AlertAction { label: string; onPress: () => void; bold?: boolean; cancel?: boolean; destructive?: boolean }

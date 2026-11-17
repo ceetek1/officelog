@@ -1,4 +1,4 @@
-// History by month (Prototype B "11 · History by month"; spec §10).
+// History by month.
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getHistory, type History as HistoryData, type Role } from "../../api";

@@ -1,4 +1,4 @@
-"""Spec §12 late boundaries, extended for Thursday and Saturday (D5), plus left early (D4)."""
+"""Late boundaries per weekday, extended for Thursday and Saturday, plus left early."""
 
 from datetime import datetime
 from zoneinfo import ZoneInfo

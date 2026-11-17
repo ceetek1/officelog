@@ -1,4 +1,4 @@
-// MD · Usage (Prototype B "MD · Usage"; spec §9): is everyone clocking in and out, every day?
+// MD · Usage: is everyone clocking in and out, every day?
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getUsage, type Usage as Data } from "../../api";

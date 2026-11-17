@@ -1,4 +1,4 @@
-// Status pill: always a word plus a tint, never colour alone (spec §10).
+// Status pill: always a word plus a tint, never colour alone.
 import type { ReactNode } from "react";
 
 export type Tone = "ok" | "warn" | "bad" | "excused" | "wait" | "info";

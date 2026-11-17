@@ -1,5 +1,5 @@
-// MD layout. On a laptop: the web layout (Prototype B "MD · …" boards: top bar, wide tables).
-// On a phone: app-style like the other phone screens (Prototype B "MD · phone" boards): a large title,
+// MD layout. On a laptop: the web layout (wide tables).
+// On a phone: app-style like the other phone screens: a large title,
 // an account button, and a bottom tab bar with icons (Today, Approvals, Activity, Usage). Detail
 // pages (a person, People, the manager) get a back button instead of the large title.
 import { useEffect, useState, type ReactNode } from "react";

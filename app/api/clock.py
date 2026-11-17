@@ -1,4 +1,4 @@
-"""Clock in and out (spec §4.2; decisions D1, D2).
+"""Clock in and out.
 
 Two calls, so the code's freshness doesn't depend on how fast Face ID is:
 
@@ -8,7 +8,7 @@ Two calls, so the code's freshness doesn't depend on how fast Face ID is:
 2. ``POST /api/clock/finish`` with the phone's signed answer. The server checks it and records the
    scan with the time from step 1.
 
-Every attempt, including failures, goes into ``scan_attempts`` (spec §9).
+Every attempt, including failures, goes into ``scan_attempts``.
 """
 
 from __future__ import annotations

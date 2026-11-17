@@ -1,6 +1,6 @@
 export interface Stat { label: string; value: number | string; color?: string }
 
-/** Three small number cards in a row (Prototype B History and Team). */
+/** Three small number cards in a row. */
 export function StatCards({ stats }: { stats: Stat[] }) {
   return (
     <div className="stats">

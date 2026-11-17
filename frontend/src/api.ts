@@ -1,4 +1,4 @@
-// Tiny API client. Cookies carry the session; every change sends the CSRF token (spec §8).
+// Tiny API client. Cookies carry the session; every change sends the CSRF token.
 
 export type Role = "worker" | "manager" | "md";
 export interface User { id: number; name: string; role: Role }
@@ -43,7 +43,7 @@ export const passwordLogin = (email: string, password: string) =>
   api<Me>("POST", "/api/auth/password-login", { email, password });
 export const logout = () => api<{ ok: true }>("POST", "/api/auth/logout");
 
-// ---- Phone: invites and Face ID (decision D1) ----
+// ---- Phone: invites and Face ID ----
 
 export interface InviteInfo { name: string; invited_by: string | null; company: string }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -124,7 +124,7 @@ export interface KioskCode {
 export const kioskCode = () => api<KioskCode>("GET", "/api/kiosk/code");
 export const kioskPair = (token: string) => api<{ ok: true }>("POST", "/api/kiosk/pair", { token });
 
-// ---- Reasons and approvals (spec §4.3) ----
+// ---- Reasons and approvals ----
 
 export type ReasonType = "late" | "absent" | "left_early" | "missed_clock_out";
 export type ReasonState = "waiting" | "approved" | "rejected";
@@ -155,7 +155,7 @@ export const getActivity = (filter: string, before?: number) =>
   api<{ entries: ActivityEntry[]; more: boolean }>("GET",
     `/api/activity?filter=${encodeURIComponent(filter)}${before ? `&before=${before}` : ""}`);
 
-// ---- People and the entrance TV (manager; spec §4.4) ----
+// ---- People and the entrance TV (manager) ----
 
 export type PersonStatus = "active" | "invited" | "expired" | "off";
 export interface Person {
@@ -177,7 +177,7 @@ export const getTvs = () => api<{ tvs: Tv[]; scans_today: number }>("GET", "/api
 export const createTvLink = () => api<TvLink>("POST", "/api/kiosks");
 export const removeTv = (id: number) => api<{ ok: true }>("POST", `/api/kiosks/${id}/revoke`);
 
-// ---- Time from the paper sheet (decision D3; manager and MD) ----
+// ---- Time from the paper sheet (manager and MD) ----
 
 export type PaperReason = "tv_not_working" | "no_smartphone" | "phone_dead_or_forgotten";
 export interface PaperTimeEntry { time: string; source: string; entered_by: string | null }
@@ -194,7 +194,7 @@ export const addPaperTime = (user_id: number, work_date: string, clock_in: strin
   api<{ name: string; added: { kind: Kind; time: string }[]; reason_label: string }>("POST", "/api/paper",
     { user_id, work_date, clock_in, clock_out, reason });
 
-// ---- MD pages (spec §9, §10) ----
+// ---- MD pages ----
 
 export interface MdToday extends TeamToday {
   is_today: boolean; short_date: string; active_people: number;

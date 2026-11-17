@@ -19,6 +19,8 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/officelog
       APP_DB_PASSWORD: local-dev-app-password
+      # Local only. Use your own long random string anywhere real.
+      MASTER_SECRET: local-dev-master-secret-not-for-production
       BASE_URL: http://localhost:8000
       COOKIE_SECURE: "false"
 volumes:

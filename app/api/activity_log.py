@@ -1,4 +1,4 @@
-"""The activity log, for the MD only (spec §2, §6). Read-only; written by app/activity.py."""
+"""The activity log, for the MD only. Read-only; written by app/activity.py."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ from app.timeutil import local_hhmm, work_date
 
 router = APIRouter(prefix="/api/activity", tags=["activity"])
 
-# Filter tabs (Prototype B "MD · Activity log") -> actions.
+# Filter tabs -> actions.
 FILTERS: dict[str, tuple[str, ...]] = {
     "resets": ("device_reset", "device_register", "invite_create"),
     "decisions": ("decision", "override", "reason_create", "reason_edit"),

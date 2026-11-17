@@ -1,4 +1,4 @@
-"""Spec §12 rule tests: absent, hours (scanned and claimed), latest decision wins, override flips,
+"""Day rule tests: absent, hours (scanned and claimed), latest decision wins, override flips,
 missing clock-out, excused, left early excused. Pure: no database."""
 
 from datetime import date, datetime
@@ -139,7 +139,7 @@ def test_waiting_reason_shows_as_waiting():
     assert v.reasons == {"late": "waiting"} and v.status == "late"
 
 
-# ---- Left early (decision D4) ----
+# ---- Left early ----
 
 def test_left_early_and_excused():
     s = [scan("in", MON, 8, 0), scan("out", MON, 16, 15)]

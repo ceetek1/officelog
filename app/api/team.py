@@ -1,4 +1,4 @@
-"""Team today (spec §10): the manager and the MD see everyone's day."""
+"""Team today: the manager and the MD see everyone's day."""
 
 from __future__ import annotations
 

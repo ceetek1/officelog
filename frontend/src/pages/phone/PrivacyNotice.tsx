@@ -1,4 +1,4 @@
-// Privacy (Nigeria Data Protection Act 2023, spec §7), cut to four short rows: what is recorded,
+// Privacy (Nigeria Data Protection Act 2023), cut to four short rows: what is recorded,
 // what never is, who sees it, how long. Shown from one line on the Welcome screen, from the
 // account menu, and at /privacy for anyone.
 import { useEffect, useState } from "react";

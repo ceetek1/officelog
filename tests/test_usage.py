@@ -1,4 +1,4 @@
-"""Usage numbers (spec §9, §11 step 6 done check): they match a scripted set of test scans, and
+"""Usage numbers: they match a scripted set of test scans, and
 20 scans within one minute all succeed."""
 
 import time
@@ -142,7 +142,7 @@ def test_usage_command_prints_the_same_numbers(scripted, clock, capsys):
 
 
 def test_days_off_and_future_days_are_left_out(scripted, client, session_for, md):
-    """Saturday is a working day in the schedule (decision D5); Sunday isn't; the 19th is tomorrow."""
+    """Saturday is a working day in the schedule; Sunday isn't; the 19th is tomorrow."""
     m = As(client, session_for, md)
     u = m.get("/api/usage?from=2026-11-14&to=2026-11-30").json()
     assert [d["label"] for d in u["days"]] == ["Sat 14 Nov", "Mon 16 Nov", "Tue 17 Nov", "Wed 18 Nov"]
@@ -161,7 +161,7 @@ def test_holidays_are_not_working_days(owner, make_user, md, clock, client, sess
 # ---- 20 scans within one minute ----
 
 def test_twenty_scans_within_one_minute_all_succeed(client, make_user, invite_for, clock, session_for, md):
-    """Spec §11 step 6: twenty people clock in within the same minute; every one succeeds, quickly."""
+    """Load check: twenty people clock in within the same minute; every one succeeds, quickly."""
     from tests.test_clock import finish, start
 
     clock.set(at(MON, 7, 59, 0))

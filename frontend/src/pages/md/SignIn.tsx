@@ -1,4 +1,4 @@
-// MD sign in (Prototype B: "MD · Log in" on the web, "MD phone · Sign in" on a phone).
+// MD sign in, on the web and on a phone.
 import { useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { ApiError, passwordLogin } from "../../api";

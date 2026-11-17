@@ -1,4 +1,4 @@
-// MD · Approvals + Override (Prototype B). The MD decides the manager's reasons (and may decide
+// MD · Approvals + Override. The MD decides the manager's reasons (and may decide
 // workers'), and can override any decision. Overrides add a decision; the newest one counts.
 import { useCallback, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";

@@ -1,4 +1,4 @@
-"""Reasons, decisions and the MD's override (spec §4.3; decision D4).
+"""Reasons, decisions and the MD's override.
 
 - Workers and the manager send reasons for their own days: late, absent, left early, missed
   clock-out. One per type per day, up to 7 days later, editable only while waiting.

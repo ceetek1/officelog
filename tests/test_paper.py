@@ -1,4 +1,4 @@
-"""Time from the paper sheet (decision D3)."""
+"""Time from the paper sheet."""
 
 from datetime import date
 
@@ -135,7 +135,7 @@ def test_paper_day_lists_people_with_their_recorded_times(office, owner):
 
 
 def test_paper_times_cant_be_edited_by_the_app(office, owner):
-    """The app's database role can only add scans (decision B1); nothing in the API changes one."""
+    """The app's database role can only add scans; nothing in the API changes one."""
     from sqlalchemy import create_engine
     from sqlalchemy.exc import ProgrammingError
 

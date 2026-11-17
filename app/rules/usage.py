@@ -1,4 +1,4 @@
-"""Usage numbers (spec §9): pure calculations, no database. ``app/usage.py`` gathers the facts.
+"""Usage numbers: pure calculations, no database. ``app/usage.py`` gathers the facts.
 
 - **Both scans:** the share of active people with an app clock-in *and* an app clock-out that day.
   Times from the paper sheet and approved claimed clock-outs don't count: this measures the app.

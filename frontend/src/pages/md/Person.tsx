@@ -1,4 +1,4 @@
-// MD · history per person (Prototype B "MD · person history"; spec §10). Month by month.
+// MD · history per person. Month by month.
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getPersonHistory, type PersonHistory } from "../../api";

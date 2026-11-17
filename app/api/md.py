@@ -1,5 +1,5 @@
-"""The MD's pages (spec §10, §11 step 6): the Today board for any day, history per person, and
-the usage numbers (spec §9). All MD only."""
+"""The MD's pages: the Today board for any day, history per person, and
+the usage numbers. All MD only."""
 
 from __future__ import annotations
 
@@ -163,7 +163,7 @@ def usage(
     clock: Clock = Depends(get_clock),
     settings: Settings = Depends(get_settings),
 ) -> dict:
-    """Spec §9. Default: the last 14 days up to today."""
+    """The usage numbers. Default: the last 14 days up to today."""
     now = clock.now()
     today = work_date(now, settings.tz)
     try:
@@ -177,7 +177,7 @@ def usage(
         raise HTTPException(status_code=400, detail={"code": "bad_range", "message": str(err)}) from None
 
 
-# ---- The manager (spec §2, decision D6): the MD adds them and can make a new invite ----
+# ---- The manager: the MD adds them and can make a new invite ----
 
 def _manager_json(db: DbSession, now: datetime, tz) -> dict | None:
     m = db.scalars(select(User).where(User.role == "manager", User.active.is_(True))).first()

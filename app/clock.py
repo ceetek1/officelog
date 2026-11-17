@@ -1,4 +1,4 @@
-"""The only place business logic gets "now" from (spec §3).
+"""The only place business logic gets "now" from.
 
 Code that needs the current time takes a ``Clock``. Production uses ``SystemClock``;
 tests use ``FixedClock`` to simulate any moment.

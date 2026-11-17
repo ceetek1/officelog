@@ -1,4 +1,4 @@
-"""Gathers the facts for the usage numbers (spec §9) and hands them to ``app/rules/usage.py``.
+"""Gathers the facts for the usage numbers and hands them to ``app/rules/usage.py``.
 
 Only working days are counted (the schedule's days, minus holidays). A person counts as active on
 a day if they had been added by then and weren't deactivated yet (the deactivation time comes from

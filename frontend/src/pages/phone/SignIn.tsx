@@ -1,4 +1,4 @@
-// Face ID sign-in on a registered phone. Prototype B board "3 · Face ID: phone not registered".
+// Face ID sign-in on a registered phone, or "phone not registered".
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ApiError, passkeyLogin, passkeyOptions } from "../../api";

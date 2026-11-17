@@ -1,4 +1,4 @@
-"""Rotating clock-in codes (spec §5, decision D2). Pure: no database, no clock, no framework.
+"""Rotating clock-in codes. Pure: no database, no clock, no framework.
 
 This module is the single definition of the code algorithm. ``frontend/src/codes.ts`` is a line-by-
 line copy for browsers; ``tests/fixtures/code_vectors.json`` keeps the two identical. Today only the

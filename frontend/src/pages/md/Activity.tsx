@@ -1,4 +1,4 @@
-// MD · Activity log (Prototype B). Everything important, newest first; append-only.
+// MD · Activity log. Everything important, newest first; append-only.
 import { useCallback, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { getActivity, type ActivityEntry } from "../../api";

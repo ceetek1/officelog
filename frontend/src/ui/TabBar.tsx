@@ -1,5 +1,5 @@
 // iOS bottom tab bar. Workers: Today, History, Reasons. Manager: Me, Team, Approvals, People.
-// MD on a phone (Prototype B "MD · phone"): Today, Approvals, Activity, Usage.
+// MD on a phone: Today, Approvals, Activity, Usage.
 import { useEffect, useState, type ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { getApprovals, type Role } from "../api";

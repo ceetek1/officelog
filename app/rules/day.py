@@ -1,4 +1,4 @@
-"""One person's day: late, left early, hours worked (spec §3, decision D4). Pure functions.
+"""One person's day: late, left early, hours worked. Pure functions.
 
 Times are company-local, timezone-aware datetimes. Step 3 adds absent, excused and missing
 clock-out here.
@@ -62,7 +62,7 @@ def receipt_for(kind: str, at: datetime, clock_in: datetime | None, day: DaySche
 
 
 # ---------------------------------------------------------------------------------------------
-# The full day view (spec §3, §6: calculated, never stored).
+# The full day view (calculated, never stored).
 # ---------------------------------------------------------------------------------------------
 
 @dataclass(frozen=True)
@@ -70,7 +70,7 @@ class ScanFact:
     kind: str                 # "in" or "out"
     at: datetime              # company-local
     source: str               # "qr", "typed" or "paper"
-    entered_by: str | None = None   # name, for paper times (decision D3)
+    entered_by: str | None = None   # name, for paper times
 
 
 @dataclass(frozen=True)
@@ -90,7 +90,7 @@ class ReasonFact:
 
 
 def latest_decision(decisions) -> DecisionFact | None:
-    """Decisions are append-only; the newest one counts (spec §4.3)."""
+    """Decisions are append-only; the newest one counts."""
     return max(decisions, key=lambda d: (d.at, d.seq), default=None)
 
 

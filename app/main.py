@@ -1,4 +1,4 @@
-"""FastAPI app: the API at /api and the built frontend at / on one origin (spec §8)."""
+"""FastAPI app: the API at /api and the built frontend at / on one origin."""
 
 from __future__ import annotations
 

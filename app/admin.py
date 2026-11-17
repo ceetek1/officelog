@@ -1,4 +1,4 @@
-"""Admin command line (spec §8).
+"""Admin command line.
 
     python -m app.admin migrate
     python -m app.admin create-md --name "Folake Adeyemi" --email folake@example.com
@@ -188,7 +188,7 @@ def _s(ms) -> str:
 
 
 def usage(start: str | None, end: str | None, now=None) -> None:
-    """Spec §9: the same numbers as the MD's Usage page, per working day and in total."""
+    """The same numbers as the MD's Usage page, per working day and in total."""
     from datetime import date
 
     from app.usage import RangeError, usage_report

@@ -1,5 +1,4 @@
-// Scan the TV code (or type it) → Face ID → receipt. Spec §4.2, decisions D1 and D2.
-// Prototype B boards "5 · Scan TV code", "6 · Receipt".
+// Scan the TV code (or type it) → Face ID → receipt.
 import QrScanner from "qr-scanner";
 import { useEffect, useRef, useState } from "react";
 import { ApiError, clockFinish, clockStart, type Challenge, type Kind, type Method, type ReasonType, type Receipt } from "../../api";

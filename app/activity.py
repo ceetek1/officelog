@@ -1,4 +1,4 @@
-"""Writing to the activity log (spec §6). Append-only."""
+"""Writing to the activity log. Append-only."""
 
 from __future__ import annotations
 

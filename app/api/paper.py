@@ -1,4 +1,4 @@
-"""Time from the paper sheet (decision D3): the manager or the MD adds a clock-in and/or clock-out
+"""Time from the paper sheet: the manager or the MD adds a clock-in and/or clock-out
 for a person, and must say why.
 
 It is stored as a new scan with ``source = 'paper'``, who entered it and why. It is never edited
@@ -31,7 +31,7 @@ from app.timeutil import local_hhmm, work_date
 router = APIRouter(prefix="/api/paper", tags=["paper"])
 
 ALLOWED = require_roles("manager", "md")
-DAYS_BACK = 7  # the paper sheet can be typed in up to a week later (builder's choice B15)
+DAYS_BACK = 7  # the paper sheet can be typed in up to a week later
 
 REASON_LABELS = {
     "tv_not_working": "TV not working",

@@ -1,4 +1,4 @@
-"""People and the entrance TV (spec §4.4, §11 step 5). Used by the manager's screens and the
+"""People and the entrance TV. Used by the manager's screens and the
 admin command line, so both behave the same and both write to the activity log.
 
 - **Add a worker:** a name, then a one-time invite link (48 h; only the token's hash is stored).
@@ -56,7 +56,7 @@ def add_worker(db: DbSession, name: str, actor_id: int | None, now: datetime) ->
 
 
 def add_manager(db: DbSession, name: str, actor_id: int | None, now: datetime) -> tuple[User, str]:
-    """The one manager (spec §2, decision D6). Refused while an active manager exists; the database's
+    """The one manager. Refused while an active manager exists; the database's
     unique index enforces it too, so two clicks at once can't make two managers."""
     name = clean_name(name)
     existing = db.scalars(select(User).where(User.role == "manager", User.active.is_(True))).first()
